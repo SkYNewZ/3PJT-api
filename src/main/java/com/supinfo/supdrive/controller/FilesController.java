@@ -52,8 +52,7 @@ public class FilesController {
 
         files.setName(filesDetails.getName());
 
-        Files updatedFiles = filesRepository.save(files);
-        return updatedFiles;
+        return filesRepository.save(files);
     }
 
     // Delete a Files
@@ -67,9 +66,8 @@ public class FilesController {
         return ResponseEntity.ok().build();
     }
 
-    public UUID getUuid(){
-        UUID uuid = UUID.randomUUID();
-        return uuid;
+    private UUID getUuid(){
+        return UUID.randomUUID();
     }
 
 }
