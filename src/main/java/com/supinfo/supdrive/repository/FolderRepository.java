@@ -1,14 +1,14 @@
 package com.supinfo.supdrive.repository;
 
-import com.supinfo.supdrive.model.Files;
+import com.supinfo.supdrive.model.Folder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface FilesRepository extends JpaRepository<Files, Long> {
+public interface FolderRepository extends JpaRepository<Folder, Long> {
 
-    public List<Files> findByFolderId(Integer folderId);
+    public List<Folder> findByOwner(Integer owner);
 
 }

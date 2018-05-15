@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -22,14 +23,15 @@ public class FilesController {
     FilesRepository filesRepository;
 
     // Get File by owner
-    @GetMapping("/files/{owner}")
-    public List<Files> getAllFilesAtOwner(@PathVariable(value = "owner") Integer owner){
-        return filesRepository.findByOwner(owner);
+    @GetMapping("/folder/{folder}/files")
+    public List<Files> getAllFilesAtOwner(@PathVariable(value = "folder") Integer folderId){
+        return filesRepository.findByFolderId(folderId);
     }
 
     // Create a new Files
     @PostMapping("/files")
     public Files createFile(@Valid @RequestBody Files files) {
+        files.setUuid(getUuid());
         return filesRepository.save(files);
     }
 
@@ -63,6 +65,11 @@ public class FilesController {
         filesRepository.delete(files);
 
         return ResponseEntity.ok().build();
+    }
+
+    public UUID getUuid(){
+        UUID uuid = UUID.randomUUID();
+        return uuid;
     }
 
 }
