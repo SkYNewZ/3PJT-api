@@ -36,7 +36,7 @@ Deploy to Gitlab Registry:
     - docker tag app registry.gitlab.com/douffy/supdrive-api:$(git describe --tags --abbrev=0)
     - docker push registry.gitlab.com/douffy/supdrive-api:$(git describe --tags --abbrev=0)
   only:
-  - master
+  - tags
 
 Deploy to Rancher:
   stage: rancher_deploy
