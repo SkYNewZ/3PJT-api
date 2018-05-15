@@ -12,11 +12,11 @@ import java.util.UUID;
 
 
 @Entity
-@Table(name = "files")
+@Table(name = "folder")
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
         allowGetters = true)
-public class Files {
+public class Folder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,15 +25,12 @@ public class Files {
     @NotBlank
     private String name;
 
-    private Integer folderId;
+    @NotNull
+    private Integer owner;
 
     private UUID uuid;
 
-    @NotNull
-    private String extention;
-
-    @NotNull
-    private String mimeType;
+    private Integer parentId;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -61,14 +58,6 @@ public class Files {
         this.name = name;
     }
 
-    public Integer getFolderId() {
-        return folderId;
-    }
-
-    public void setFolderId(Integer owner) {
-        this.folderId = owner;
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -93,19 +82,20 @@ public class Files {
         this.uuid = uuid;
     }
 
-    public String getExtention() {
-        return extention;
+    public Integer getOwner() {
+        return owner;
     }
 
-    public void setExtention(String extention) {
-        this.extention = extention;
+    public void setOwner(Integer owner) {
+        this.owner = owner;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public Integer getParentId() {
+        return parentId;
     }
 
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
+
 }
