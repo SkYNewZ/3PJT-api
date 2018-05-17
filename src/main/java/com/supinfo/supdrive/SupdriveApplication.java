@@ -32,15 +32,6 @@ public class SupdriveApplication {
         return (args) -> storageService.init();
     }
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:4200", "https://localhost:4200", "https://supdrive.lemairepro.fr");
-            }
-        };
     }
-}
+
 
