@@ -1,11 +1,22 @@
 package com.supinfo.supdrive.controller;
 
 import java.io.IOException;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.supinfo.supdrive.exception.StorageFileNotFoundException;
+import com.supinfo.supdrive.model.File;
+import com.supinfo.supdrive.model.Folder;
+import com.supinfo.supdrive.repository.FilesRepository;
 import com.supinfo.supdrive.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +37,12 @@ public class FileUploadController {
     public FileUploadController(StorageService storageService) {
         this.storageService = storageService;
     }
+
+    @Autowired
+    FilesRepository filesRepository;
+
+    @Value("${storage.location}")
+    private String location;
 
     @GetMapping("/")
     public String listUploadedFiles(Model model) throws IOException {
@@ -48,19 +65,52 @@ public class FileUploadController {
     }
 
     @PostMapping("/files/upload")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file,
+    public File handleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes) {
 
+        File fileToUpload = new File();
+        Folder folder = new Folder();
+        fileToUpload.setName(file.getOriginalFilename());
+        fileToUpload.setUuid(getUuid());
+        fileToUpload.setMimeType(URLConnection.guessContentTypeFromName(file.getName()));
+        fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
+        fileToUpload.setFolder(folder);
         storageService.store(file);
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
 
-        return "redirect:/";
+        try {
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(location + fileToUpload.getUuid());
+            Files.write(path, bytes);
+            redirectAttributes.addFlashAttribute("message",
+                    "You successfully uploaded " + file.getOriginalFilename() + "!");
+        }
+         catch (IOException e) {
+        e.printStackTrace();
+    }
+
+        return filesRepository.save(fileToUpload);
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)
     public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
         return ResponseEntity.notFound().build();
+    }
+
+    private UUID getUuid(){
+        return UUID.randomUUID();
+    }
+
+    private String getNameExtention(String name){
+
+        String Result;
+        String pattern = "\\.(\\w+)$";
+        Pattern c = Pattern.compile(pattern);
+        Matcher m = c.matcher(name);
+        if (m.find()){
+            Result = m.group();
+        }else Result = name;
+
+        return Result;
     }
 
 }

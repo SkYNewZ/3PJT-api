@@ -2,9 +2,10 @@ package com.supinfo.supdrive.controller;
 
 
 import com.supinfo.supdrive.exception.ResourceNotFoundException;
-import com.supinfo.supdrive.model.Files;
+import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.repository.FilesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,32 +23,35 @@ public class FilesController {
     @Autowired
     FilesRepository filesRepository;
 
+    @Value("${storage.location}")
+    private String location;
+
     // Get File by owner
     @GetMapping("/folder/{folder}/files")
-    public List<Files> getAllFilesAtOwner(@PathVariable(value = "folder") Integer folderId){
+    public List<File> getAllFilesAtOwner(@PathVariable(value = "folder") Integer folderId){
         return filesRepository.findByFolderId(folderId);
     }
 
     // Create a new Files
     @PostMapping("/files")
-    public Files createFile(@Valid @RequestBody Files files) {
+    public File createFile(@Valid @RequestBody File files) {
         files.setUuid(getUuid());
         return filesRepository.save(files);
     }
 
     // Get a Single Files
     @GetMapping("/files/{id}")
-    public Files getFileById(@PathVariable(value = "id") Long fileID) {
+    public File getFileById(@PathVariable(value = "id") Long fileID) {
         return filesRepository.findById(fileID)
                 .orElseThrow(() -> new ResourceNotFoundException("Files", "id", fileID));
     }
 
     // Update a Files
     @PutMapping("/files/{id}")
-    public Files updateFile(@PathVariable(value = "id") Long fileID,
-                           @Valid @RequestBody Files filesDetails) {
+    public File updateFile(@PathVariable(value = "id") Long fileID,
+                           @Valid @RequestBody File filesDetails) {
 
-        Files files = filesRepository.findById(fileID)
+        File files = filesRepository.findById(fileID)
                 .orElseThrow(() -> new ResourceNotFoundException("Files", "id", fileID));
 
         files.setName(filesDetails.getName());
@@ -58,7 +62,7 @@ public class FilesController {
     // Delete a Files
     @DeleteMapping("/files/{id}")
     public ResponseEntity<?> deleteFile(@PathVariable(value = "id") Long fileID) {
-        Files files = filesRepository.findById(fileID)
+        File files = filesRepository.findById(fileID)
                 .orElseThrow(() -> new ResourceNotFoundException("Files", "id", fileID));
 
         filesRepository.delete(files);

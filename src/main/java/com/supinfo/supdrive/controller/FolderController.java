@@ -3,6 +3,7 @@ package com.supinfo.supdrive.controller;
 
 import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.Folder;
+import com.supinfo.supdrive.model.Owner;
 import com.supinfo.supdrive.repository.FolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +24,10 @@ public class FolderController {
     FolderRepository folderRepository;
 
     // Get File by owner
-    @GetMapping("/folder/{folder}")
-    public List<Folder> getAllDataByOwner(@PathVariable(value = "owner") Integer owner){
-        return folderRepository.findByOwner(owner);
-    }
+   // @GetMapping("/folder/{folder}")
+    //public List<Folder> getAllDataByOwner(@PathVariable(value = "owner") Owner owner){
+      //  return folderRepository.findByOwner(owner);
+   // }
 
     // Create a new Files
     @PostMapping("/folder")

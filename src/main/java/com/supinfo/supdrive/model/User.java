@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -151,4 +152,5 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
+
 }

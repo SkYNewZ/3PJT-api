@@ -1,6 +1,7 @@
 package com.supinfo.supdrive.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.models.auth.In;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
         allowGetters = true)
-public class Files {
+public class File {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +26,6 @@ public class Files {
     @NotBlank
     private String name;
 
-    private Integer folderId;
-
     private UUID uuid;
 
     @NotNull
@@ -34,6 +33,10 @@ public class Files {
 
     @NotNull
     private String mimeType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "folder_id", nullable = false)
+    private Folder folder;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,6 +47,14 @@ public class Files {
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date updatedAt;
+
+    public File() {}
+
+    public File(String name, UUID uuid){
+
+        this.name = name;
+        this.uuid = uuid;
+    }
 
     public Long getId() {
         return id;
@@ -59,14 +70,6 @@ public class Files {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Integer getFolderId() {
-        return folderId;
-    }
-
-    public void setFolderId(Integer owner) {
-        this.folderId = owner;
     }
 
     public Date getCreatedAt() {
@@ -107,5 +110,13 @@ public class Files {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public void setFolder(Folder folder) {
+        this.folder = folder;
+
+    }
+    public Folder getFolder() {
+        return folder;
     }
 }
