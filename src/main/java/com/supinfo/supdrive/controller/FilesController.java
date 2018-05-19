@@ -3,6 +3,7 @@ package com.supinfo.supdrive.controller;
 
 import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.File;
+import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.repository.FilesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +35,9 @@ public class FilesController {
 
     // Create a new Files
     @PostMapping("/files")
-    public File createFile(@Valid @RequestBody File files) {
+    public File createFile(@Valid @RequestBody File files, @RequestBody Folder folder) {
         files.setUuid(getUuid());
+        files.setFolder(folder);
         return filesRepository.save(files);
     }
 

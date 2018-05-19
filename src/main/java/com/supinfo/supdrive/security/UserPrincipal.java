@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class UserPrincipal implements UserDetails {
+    @JsonIgnore
     private Long id;
 
     private String firstName;
@@ -21,7 +22,6 @@ public class UserPrincipal implements UserDetails {
 
     private String username;
 
-    @JsonIgnore
     private String email;
 
     @JsonIgnore

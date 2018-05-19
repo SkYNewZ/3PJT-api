@@ -13,7 +13,11 @@ import java.util.stream.Collectors;
 import com.supinfo.supdrive.exception.StorageFileNotFoundException;
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
+import com.supinfo.supdrive.model.Owner;
+import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
+import com.supinfo.supdrive.security.CurrentUser;
+import com.supinfo.supdrive.security.UserPrincipal;
 import com.supinfo.supdrive.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,30 +69,32 @@ public class FileUploadController {
     }
 
     @PostMapping("/files/upload")
-    public File handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes) {
+    public ResponseEntity<File> handleFileUpload(@RequestParam("file") MultipartFile file,
+                                   @RequestParam(value = "folder", defaultValue = "home") Folder folder,
+                                 @CurrentUser UserPrincipal currentUser) {
 
+        User user = new User();
         File fileToUpload = new File();
-        Folder folder = new Folder();
         fileToUpload.setName(file.getOriginalFilename());
         fileToUpload.setUuid(getUuid());
-        fileToUpload.setMimeType(URLConnection.guessContentTypeFromName(file.getName()));
+        fileToUpload.setMimeType(file.getContentType());
         fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
         fileToUpload.setFolder(folder);
+        user.setId(currentUser.getId());
+        fileToUpload.setUser(user);
         storageService.store(file);
 
         try {
             byte[] bytes = file.getBytes();
-            Path path = Paths.get(location + fileToUpload.getUuid());
+            Path path = Paths.get(location + "/" +fileToUpload.getUuid());
             Files.write(path, bytes);
-            redirectAttributes.addFlashAttribute("message",
-                    "You successfully uploaded " + file.getOriginalFilename() + "!");
         }
          catch (IOException e) {
         e.printStackTrace();
     }
-
-        return filesRepository.save(fileToUpload);
+        File toReturn = filesRepository.save(fileToUpload);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + toReturn.getName() + "\"").body(toReturn);
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)
