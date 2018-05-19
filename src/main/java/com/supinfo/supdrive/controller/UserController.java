@@ -66,4 +66,10 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    //check username availabilty
+    @GetMapping("/user/checkUsernameAvailability")
+    public Boolean checkUsernameAvailability(@RequestParam String username) {
+        return !(userRepository.existsByUsername(username));
+    }
+
 }
