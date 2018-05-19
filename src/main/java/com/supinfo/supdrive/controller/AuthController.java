@@ -1,6 +1,7 @@
 package com.supinfo.supdrive.controller;
 
 import com.supinfo.supdrive.exception.AppException;
+import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.Role;
 import com.supinfo.supdrive.model.RoleName;
 import com.supinfo.supdrive.model.User;
@@ -8,6 +9,7 @@ import com.supinfo.supdrive.payload.ApiResponse;
 import com.supinfo.supdrive.payload.JwtAuthenticationResponse;
 import com.supinfo.supdrive.payload.LoginRequest;
 import com.supinfo.supdrive.payload.SignUpRequest;
+import com.supinfo.supdrive.repository.FolderRepository;
 import com.supinfo.supdrive.repository.RoleRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.JwtTokenProvider;
@@ -28,6 +30,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Collections;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -41,6 +44,9 @@ public class AuthController {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    FolderRepository folderRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -87,14 +93,24 @@ public class AuthController {
 
         user.setRoles(Collections.singleton(userRole));
         user.setProvider("supdrive");
-
-
         User result = userRepository.save(user);
+
+        //create default home folder
+        Folder home =  new Folder();
+        home.setUuid(getUuid());
+        home.setName("home");
+        home.setUser(result);
+        home.setDefaultDirectory(true);
+        folderRepository.save(home);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/users/{username}")
                 .buildAndExpand(result.getUsername()).toUri();
 
         return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+    }
+
+    private UUID getUuid(){
+        return UUID.randomUUID();
     }
 }

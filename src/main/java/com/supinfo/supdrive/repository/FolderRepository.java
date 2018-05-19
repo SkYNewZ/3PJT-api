@@ -4,6 +4,7 @@ import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.Owner;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,5 +18,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     List<Folder> findByIdIn(List<Long> folderIds);
 
     List<Folder> findByIdIn(List<Long> folderIds, Sort sort);
+
+    Folder findByNameAndIsDefaultDirectoryAndUserId(String name, Boolean isDefaultDirectory, Long userId);
+
 
 }

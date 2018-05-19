@@ -32,6 +32,8 @@ public class Folder {
 
     private UUID uuid;
 
+    private Boolean isDefaultDirectory;
+
     @OneToMany(
             mappedBy = "folder",
             cascade = CascadeType.ALL,
@@ -50,6 +52,10 @@ public class Folder {
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public Folder() {}
 
@@ -93,4 +99,27 @@ public class Folder {
         this.uuid = uuid;
     }
 
+    public List<File> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<File> files) {
+        this.files = files;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Boolean getDefaultDirectory() {
+        return isDefaultDirectory;
+    }
+
+    public void setDefaultDirectory(Boolean defaultDirectory) {
+        isDefaultDirectory = defaultDirectory;
+    }
 }

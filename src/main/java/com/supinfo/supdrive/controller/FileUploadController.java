@@ -16,6 +16,7 @@ import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.Owner;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
+import com.supinfo.supdrive.repository.FolderRepository;
 import com.supinfo.supdrive.security.CurrentUser;
 import com.supinfo.supdrive.security.UserPrincipal;
 import com.supinfo.supdrive.service.StorageService;
@@ -45,6 +46,9 @@ public class FileUploadController {
     @Autowired
     FilesRepository filesRepository;
 
+    @Autowired
+    FolderRepository folderRepository;
+
     @Value("${storage.location}")
     private String location;
 
@@ -70,8 +74,7 @@ public class FileUploadController {
 
     @PostMapping("/files/upload")
     public ResponseEntity<File> handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   @RequestParam(value = "folder", defaultValue = "home") Folder folder,
-                                 @CurrentUser UserPrincipal currentUser) {
+                                 @CurrentUser UserPrincipal currentUser, @RequestParam(value = "folder", required = false) Folder folder) {
 
         User user = new User();
         File fileToUpload = new File();
@@ -79,8 +82,12 @@ public class FileUploadController {
         fileToUpload.setUuid(getUuid());
         fileToUpload.setMimeType(file.getContentType());
         fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
-        fileToUpload.setFolder(folder);
         user.setId(currentUser.getId());
+        if (folder == null){
+            folder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
+        }
+
+        fileToUpload.setFolder(folder);
         fileToUpload.setUser(user);
         storageService.store(file);
 
