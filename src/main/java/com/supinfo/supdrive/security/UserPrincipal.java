@@ -27,6 +27,7 @@ public class UserPrincipal implements UserDetails {
     @JsonIgnore
     private String password;
 
+    @JsonIgnore
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(Long id, String firstName, String lastName, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
