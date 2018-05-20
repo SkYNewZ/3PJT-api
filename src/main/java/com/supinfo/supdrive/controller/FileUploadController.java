@@ -1,7 +1,6 @@
 package com.supinfo.supdrive.controller;
 
 import java.io.IOException;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 import com.supinfo.supdrive.exception.StorageFileNotFoundException;
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
-import com.supinfo.supdrive.model.Owner;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
 import com.supinfo.supdrive.repository.FolderRepository;
@@ -30,7 +28,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/api")

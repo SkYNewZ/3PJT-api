@@ -34,6 +34,8 @@ public class Folder {
 
     private Boolean isDefaultDirectory;
 
+    private Long parentId;
+
     @OneToMany(
             mappedBy = "folder",
             cascade = CascadeType.ALL,
@@ -121,5 +123,13 @@ public class Folder {
 
     public void setDefaultDirectory(Boolean defaultDirectory) {
         isDefaultDirectory = defaultDirectory;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }
