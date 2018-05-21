@@ -36,6 +36,7 @@ public class File {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = false)
+    @JsonIgnore
     private Folder folder;
 
     @ManyToOne(fetch = FetchType.LAZY)

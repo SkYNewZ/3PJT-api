@@ -98,8 +98,7 @@ public class FileUploadController {
         e.printStackTrace();
     }
         File toReturn = filesRepository.save(fileToUpload);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + toReturn.getName() + "\"").body(toReturn);
+        return ResponseEntity.ok().body(toReturn);
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)

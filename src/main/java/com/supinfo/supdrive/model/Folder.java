@@ -32,8 +32,10 @@ public class Folder {
 
     private UUID uuid;
 
+    @JsonIgnore
     private Boolean isDefaultDirectory;
 
+    @JsonIgnore
     private Long parentId;
 
     @OneToMany(
