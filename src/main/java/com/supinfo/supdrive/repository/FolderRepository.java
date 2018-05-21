@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
@@ -18,6 +19,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     List<Folder> findByIdIn(List<Long> folderIds, Sort sort);
 
     Folder findByNameAndIsDefaultDirectoryAndUserId(String name, Boolean isDefaultDirectory, Long userId);
+
+    Folder findByUuid(UUID uuid);
 
 
 }

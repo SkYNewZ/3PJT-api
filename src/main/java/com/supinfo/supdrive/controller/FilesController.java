@@ -1,16 +1,26 @@
 package com.supinfo.supdrive.controller;
 
 
-import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.repository.FilesRepository;
+import com.supinfo.supdrive.repository.FolderRepository;
+import com.supinfo.supdrive.security.CurrentUser;
+import com.supinfo.supdrive.security.UserPrincipal;
+import com.supinfo.supdrive.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.IOUtils;
 
-import javax.validation.Valid;
+import javax.servlet.ServletContext;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,61 +28,38 @@ import java.util.UUID;
 @RequestMapping("/api")
 public class FilesController {
 
+    private final StorageService storageService;
+
     @Autowired
     FilesController filesController;
 
     @Autowired
     FilesRepository filesRepository;
 
+    @Autowired
+    FolderRepository folderRepository;
+
     @Value("${storage.location}")
     private String location;
 
-    // Get File by owner
-    @GetMapping("/folder/{folder}/files")
-    public List<File> getAllFilesAtOwner(@PathVariable(value = "folder") Integer folderId){
-        return filesRepository.findByFolderId(folderId);
+    @Autowired
+    public FilesController(StorageService storageService) {
+        this.storageService = storageService;
     }
 
-    // Create a new Files
-    @PostMapping("/files")
-    public File createFile(@Valid @RequestBody File files, @RequestBody Folder folder) {
-        files.setUuid(getUuid());
-        files.setFolder(folder);
-        return filesRepository.save(files);
+    @GetMapping("/files")
+    public ResponseEntity<List<File>> getFilesByFolder(@CurrentUser UserPrincipal currentUser, @RequestParam(value = "folder", required = false) UUID folderUuid) {
+        // if folder is not specified, return the file is the current user's home directory
+        if (folderUuid != null) {
+            Folder folder = folderRepository.findByUuid(folderUuid);
+            return ResponseEntity.ok().body(folder.getFiles());
+        }
+
+        Folder folder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, currentUser.getId());
+        return ResponseEntity.ok().body(folder.getFiles());
     }
 
-    // Get a Single Files
-    @GetMapping("/files/{id}")
-    public File getFileById(@PathVariable(value = "id") Long fileID) {
-        return filesRepository.findById(fileID)
-                .orElseThrow(() -> new ResourceNotFoundException("Files", "id", fileID));
-    }
-
-    // Update a Files
-    @PutMapping("/files/{id}")
-    public File updateFile(@PathVariable(value = "id") Long fileID,
-                           @Valid @RequestBody File filesDetails) {
-
-        File files = filesRepository.findById(fileID)
-                .orElseThrow(() -> new ResourceNotFoundException("Files", "id", fileID));
-
-        files.setName(filesDetails.getName());
-
-        return filesRepository.save(files);
-    }
-
-    // Delete a Files
-    @DeleteMapping("/files/{id}")
-    public ResponseEntity<?> deleteFile(@PathVariable(value = "id") Long fileID) {
-        File files = filesRepository.findById(fileID)
-                .orElseThrow(() -> new ResourceNotFoundException("Files", "id", fileID));
-
-        filesRepository.delete(files);
-
-        return ResponseEntity.ok().build();
-    }
-
-    private UUID getUuid(){
+    private UUID getUuid() {
         return UUID.randomUUID();
     }
 

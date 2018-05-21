@@ -60,18 +60,18 @@ public class FileUploadController {
         return "uploadForm";
     }
 
-    @GetMapping("/files/{filename:.+}")
-    @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
-
-        Resource file = storageService.loadAsResource(filename);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-    }
+//    @GetMapping("/files/{filename:.+}")
+//    @ResponseBody
+//    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+//
+//        Resource file = storageService.loadAsResource(filename);
+//        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+//                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+//    }
 
     @PostMapping("/files/upload")
     public ResponseEntity<File> handleFileUpload(@RequestParam("file") MultipartFile file,
-                                 @CurrentUser UserPrincipal currentUser, @RequestParam(value = "folder", required = false) Folder folder) {
+                                                 @CurrentUser UserPrincipal currentUser, @RequestParam(value = "folder", required = false) Folder folder) {
 
         User user = new User();
         File fileToUpload = new File();
@@ -80,7 +80,7 @@ public class FileUploadController {
         fileToUpload.setMimeType(file.getContentType());
         fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
         user.setId(currentUser.getId());
-        if (folder == null){
+        if (folder == null) {
             folder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
         }
 
@@ -90,13 +90,12 @@ public class FileUploadController {
 
         try {
             byte[] bytes = file.getBytes();
-            Path path = Paths.get(location + "/" +fileToUpload.getUuid());
+            Path path = Paths.get(location + "/" + fileToUpload.getUuid());
             Files.write(path, bytes);
             Files.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-         catch (IOException e) {
-        e.printStackTrace();
-    }
         File toReturn = filesRepository.save(fileToUpload);
         return ResponseEntity.ok().body(toReturn);
     }
@@ -106,19 +105,19 @@ public class FileUploadController {
         return ResponseEntity.notFound().build();
     }
 
-    private UUID getUuid(){
+    private UUID getUuid() {
         return UUID.randomUUID();
     }
 
-    private String getNameExtention(String name){
+    private String getNameExtention(String name) {
 
         String Result;
         String pattern = "\\.(\\w+)$";
         Pattern c = Pattern.compile(pattern);
         Matcher m = c.matcher(name);
-        if (m.find()){
+        if (m.find()) {
             Result = m.group();
-        }else Result = name;
+        } else Result = name;
 
         return Result;
     }
