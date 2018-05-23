@@ -101,6 +101,7 @@ public class AuthController {
         home.setName("home");
         home.setUser(result);
         home.setDefaultDirectory(true);
+        home.setMimeType("inode/directory");
         folderRepository.save(home);
 
         URI location = ServletUriComponentsBuilder

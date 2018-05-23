@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-
 @Entity
 @Table(name = "folders")
 @EntityListeners(AuditingEntityListener.class)
@@ -31,6 +30,8 @@ public class Folder {
     private String name;
 
     private UUID uuid;
+
+    private String mimeType;
 
     @JsonIgnore
     private Boolean isDefaultDirectory;
@@ -153,5 +154,13 @@ public class Folder {
 
     public void setFolder(Folder folder) {
         this.folder = folder;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 }

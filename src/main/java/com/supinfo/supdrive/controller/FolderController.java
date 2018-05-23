@@ -1,8 +1,6 @@
 package com.supinfo.supdrive.controller;
 
-
 import com.supinfo.supdrive.exception.ResourceNotFoundException;
-import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.ResponseDto;
 import com.supinfo.supdrive.model.User;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -47,6 +44,7 @@ public class FolderController {
         folder.setDefaultDirectory(false);
         folder.setUuid(getUuid());
         folder.setUser(user);
+        folder.setMimeType("inode/directory");
 
         if (folder.getFolder() == null){
             Folder folder1 = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());

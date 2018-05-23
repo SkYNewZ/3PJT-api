@@ -1,6 +1,5 @@
 package com.supinfo.supdrive.controller;
 
-
 import com.supinfo.supdrive.exception.StorageFileNotFoundException;
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
@@ -12,22 +11,14 @@ import com.supinfo.supdrive.security.UserPrincipal;
 import com.supinfo.supdrive.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sun.misc.IOUtils;
 
-import javax.servlet.ServletContext;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
