@@ -41,10 +41,6 @@ public class FolderController {
 
         User user = new User();
         user.setId(currentUser.getId());
-        user.setUsername(currentUser.getUsername());
-        user.setFirstname(currentUser.getFirstName());
-        user.setLastname(currentUser.getLastName());
-        user.setEmail(currentUser.getEmail());
 
         folder.setUuid(getUuid());
         folder.setUser(user);

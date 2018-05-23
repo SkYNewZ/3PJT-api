@@ -3,6 +3,7 @@ package com.supinfo.supdrive.controller;
 
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
+import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
 import com.supinfo.supdrive.repository.FolderRepository;
 import com.supinfo.supdrive.security.CurrentUser;
@@ -50,8 +51,10 @@ public class FilesController {
     @GetMapping("/files")
     public ResponseEntity<List<File>> getFilesByFolder(@CurrentUser UserPrincipal currentUser, @RequestParam(value = "folder", required = false) UUID folderUuid) {
         // if folder is not specified, return the file is the current user's home directory
+        User user = new User();
+        user.setId(currentUser.getId());
         if (folderUuid != null) {
-            Folder folder = folderRepository.findByUuid(folderUuid);
+            Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
             return ResponseEntity.ok().body(folder.getFiles());
         }
 

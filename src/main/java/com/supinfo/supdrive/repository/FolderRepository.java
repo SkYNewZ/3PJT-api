@@ -1,6 +1,7 @@
 package com.supinfo.supdrive.repository;
 
 import com.supinfo.supdrive.model.Folder;
+import com.supinfo.supdrive.model.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,7 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     Folder findByNameAndIsDefaultDirectoryAndUserId(String name, Boolean isDefaultDirectory, Long userId);
 
-    Folder findByUuid(UUID uuid);
+    Folder findByUuidAndUser(UUID uuid, User user);
 
 
 }

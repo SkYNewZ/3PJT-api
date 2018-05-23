@@ -92,6 +92,7 @@ public class FileUploadController {
             byte[] bytes = file.getBytes();
             Path path = Paths.get(location + "/" + fileToUpload.getUuid());
             Files.write(path, bytes);
+            path = Paths.get(location + "/" + fileToUpload.getName());
             Files.delete(path);
         } catch (IOException e) {
             e.printStackTrace();
