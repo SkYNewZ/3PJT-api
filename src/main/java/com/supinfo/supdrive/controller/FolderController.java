@@ -2,6 +2,7 @@ package com.supinfo.supdrive.controller;
 
 
 import com.supinfo.supdrive.exception.ResourceNotFoundException;
+import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FolderRepository;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,29 +36,50 @@ public class FolderController {
       //  return folderRepository.findByOwner(owner);
    // }
 
+    //param = name & parentId
     // Create a new Folder
-    @PostMapping("/folder")
+    @PostMapping("/folder/{uuid}")
     public ResponseEntity<Folder> createFolder(@Valid @RequestBody Folder folder,
+                                               @PathVariable(value = "uuid", required = false) UUID parentUuidFolder,
                                                @CurrentUser UserPrincipal currentUser) {
 
         User user = new User();
         user.setId(currentUser.getId());
 
+        Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
+        folder.setParentId(parentFolder.getId());
+        folder.setDefaultDirectory(false);
         folder.setUuid(getUuid());
         folder.setUser(user);
-        folder.setDefaultDirectory(false);
+
         if (folder.getParentId() == null){
-            folder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
+            Folder folder1 = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
+            folder.setParentId(folder1.getId());
         }
         folderRepository.save(folder);
 
         return ResponseEntity.ok().body(folder);
     }
 
+    // get all folder's file ( by UUID )
+    @GetMapping("/folder/{uuid}")
+    public ResponseEntity<List<File>> getFilesByFolder(@CurrentUser UserPrincipal currentUser, @PathVariable(value = "uuid", required = false) UUID folderUuid) {
+        // if folder is not specified, return the file is the current user's home directory
+        User user = new User();
+        user.setId(currentUser.getId());
+        if (folderUuid != null) {
+            Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
+            return ResponseEntity.ok().body(folder.getFiles());
+        }
+
+        Folder folder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, currentUser.getId());
+        return ResponseEntity.ok().body(folder.getFiles());
+    }
+
     // Update a Folder
     @PutMapping("/folder/{id}")
     public Folder updateFolder(@PathVariable(value = "id") Long folderId,
-                            @Valid @RequestBody Folder folderDetails) {
+                               @Valid @RequestBody Folder folderDetails) {
 
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Folder", "id", folderId));
@@ -78,7 +101,7 @@ public class FolderController {
         return ResponseEntity.ok().build();
     }
 
-    public UUID getUuid(){
+    private UUID getUuid(){
         UUID uuid = UUID.randomUUID();
         return uuid;
     }
