@@ -38,7 +38,7 @@ public class FolderController {
 
     //param = name & parentId
     // Create a new Folder
-    @PostMapping("/folder/{uuid}")
+    @PostMapping({"/folder/{uuid}", "/folder"})
     public ResponseEntity<Folder> createFolder(@Valid @RequestBody Folder folder,
                                                @PathVariable(value = "uuid", required = false) UUID parentUuidFolder,
                                                @CurrentUser UserPrincipal currentUser) {
@@ -46,8 +46,10 @@ public class FolderController {
         User user = new User();
         user.setId(currentUser.getId());
 
-        Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
-        folder.setParentId(parentFolder.getId());
+        if (parentUuidFolder != null) {
+            Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
+            folder.setParentId(parentFolder.getId());
+        }
         folder.setDefaultDirectory(false);
         folder.setUuid(getUuid());
         folder.setUser(user);
@@ -62,7 +64,7 @@ public class FolderController {
     }
 
     // get all folder's file ( by UUID )
-    @GetMapping("/folder/{uuid}")
+    @GetMapping({"/folder/{uuid}", "/folder"})
     public ResponseEntity<List<File>> getFilesByFolder(@CurrentUser UserPrincipal currentUser, @PathVariable(value = "uuid", required = false) UUID folderUuid) {
         // if folder is not specified, return the file is the current user's home directory
         User user = new User();

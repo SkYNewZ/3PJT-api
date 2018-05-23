@@ -56,7 +56,7 @@ public class FilesController {
     }
 
     // Create a file ( by name & folder's UUID )
-    @PostMapping("/files/upload/{uuid}")
+    @PostMapping({"/files/upload/{uuid}", "/files/upload"})
     public ResponseEntity<File> handleFileUpload(@RequestParam("file") MultipartFile file,
                                                  @PathVariable(value = "uuid", required = false) UUID parentUuidFolder,
                                                  @CurrentUser UserPrincipal currentUser) {
