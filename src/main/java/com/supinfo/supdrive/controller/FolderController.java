@@ -77,17 +77,20 @@ public class FolderController {
     }
 
     // Update a Folder
-    @PutMapping("/folder/{id}")
-    public Folder updateFolder(@PathVariable(value = "id") Long folderId,
-                               @Valid @RequestBody Folder folderDetails) {
+    @PutMapping("/folder/{uuid}")
+    public Folder updateFolder(@PathVariable(value = "uuid") UUID folderUuid,
+                               @Valid @RequestBody Folder folderUpdate,
+                               @CurrentUser UserPrincipal currentUser) {
 
-        Folder folder = folderRepository.findById(folderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Folder", "id", folderId));
+        User user = new User();
+        user.setId(currentUser.getId());
+        Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
 
-        folder.setName(folderDetails.getName());
+        folder.setName(folderUpdate.getName());
 
         Folder updateFolder = folderRepository.save(folder);
         return updateFolder;
+
     }
 
     // Delete a Files

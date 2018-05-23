@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,7 +58,7 @@ public class FilesController {
 
         Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
         File fileToUpload = new File();
-        fileToUpload.setName(file.getOriginalFilename());
+        fileToUpload.setName(getNameWithoutExtention(file.getOriginalFilename()));
         fileToUpload.setUuid(getUuid());
         fileToUpload.setMimeType(file.getContentType());
         fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
@@ -85,6 +86,23 @@ public class FilesController {
         return ResponseEntity.ok().body(toReturn);
     }
 
+    // Update a File
+    @PutMapping("/files/{uuid}")
+    public File updateFile(@PathVariable(value = "uuid") UUID fileUuid,
+                               @Valid @RequestBody File fileUpdate,
+                               @CurrentUser UserPrincipal currentUser) {
+
+        User user = new User();
+        user.setId(currentUser.getId());
+        File file = filesRepository.findByUuidAndUser(fileUuid, user);
+
+        file.setName(fileUpdate.getName());
+
+        File updateFile = filesRepository.save(file);
+        return updateFile;
+
+    }
+
     @ExceptionHandler(StorageFileNotFoundException.class)
     public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
         return ResponseEntity.notFound().build();
@@ -105,6 +123,19 @@ public class FilesController {
         if (m.find()) {
             Result = m.group();
         } else Result = name;
+
+        return Result;
+    }
+
+    private String getNameWithoutExtention(String name){
+
+        String Result;
+        String pattern = "(.+?)(\\.[^.]*$|$)";
+        Pattern c = Pattern.compile(pattern);
+        Matcher m = c.matcher(name);
+        if (m.find()){
+            Result = m.group(1);
+        }else Result = name;
 
         return Result;
     }

@@ -28,10 +28,8 @@ public class File {
 
     private UUID uuid;
 
-    @NotNull
     private String extention;
 
-    @NotNull
     private String mimeType;
 
     @ManyToOne(fetch = FetchType.LAZY)
