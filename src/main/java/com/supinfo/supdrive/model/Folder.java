@@ -35,9 +35,6 @@ public class Folder {
     @JsonIgnore
     private Boolean isDefaultDirectory;
 
-    @JsonIgnore
-    private Long parentId;
-
     @OneToMany(
             mappedBy = "folder",
             cascade = CascadeType.ALL,
@@ -46,6 +43,20 @@ public class Folder {
     )
     @Fetch(FetchMode.SELECT)
     private List<File> files = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "folder",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            orphanRemoval = true
+    )
+    @Fetch(FetchMode.SELECT)
+    private List<Folder> folders = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_folder_id")
+    @JsonIgnore
+    private Folder folder;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -128,11 +139,19 @@ public class Folder {
         isDefaultDirectory = defaultDirectory;
     }
 
-    public Long getParentId() {
-        return parentId;
+    public List<Folder> getFolders() {
+        return folders;
     }
 
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
+    public void setFolders(List<Folder> folders) {
+        this.folders = folders;
+    }
+
+    public Folder getFolder() {
+        return folder;
+    }
+
+    public void setFolder(Folder folder) {
+        this.folder = folder;
     }
 }

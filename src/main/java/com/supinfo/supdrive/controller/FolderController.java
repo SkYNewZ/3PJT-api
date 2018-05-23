@@ -4,6 +4,7 @@ package com.supinfo.supdrive.controller;
 import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
+import com.supinfo.supdrive.model.ResponseDto;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FolderRepository;
 import com.supinfo.supdrive.repository.UserRepository;
@@ -30,13 +31,6 @@ public class FolderController {
     @Autowired
     UserRepository userRepository;
 
-    // Get Folder by owner
-   // @GetMapping("/folder/{folder}")
-    //public List<Folder> getAllDataByOwner(@PathVariable(value = "owner") Owner owner){
-      //  return folderRepository.findByOwner(owner);
-   // }
-
-    //param = name & parentId
     // Create a new Folder
     @PostMapping({"/folder/{uuid}", "/folder"})
     public ResponseEntity<Folder> createFolder(@Valid @RequestBody Folder folder,
@@ -48,34 +42,40 @@ public class FolderController {
 
         if (parentUuidFolder != null) {
             Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
-            folder.setParentId(parentFolder.getId());
+            folder.setFolder(parentFolder);
         }
         folder.setDefaultDirectory(false);
         folder.setUuid(getUuid());
         folder.setUser(user);
 
-        if (folder.getParentId() == null){
+        if (folder.getFolder() == null){
             Folder folder1 = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
-            folder.setParentId(folder1.getId());
+            folder.setFolder(folder1);
         }
         folderRepository.save(folder);
 
         return ResponseEntity.ok().body(folder);
     }
 
-    // get all folder's file ( by UUID )
+    // get all folder's data ( by UUID )
     @GetMapping({"/folder/{uuid}", "/folder"})
-    public ResponseEntity<List<File>> getFilesByFolder(@CurrentUser UserPrincipal currentUser, @PathVariable(value = "uuid", required = false) UUID folderUuid) {
+    public ResponseEntity<ResponseDto> getFilesByFolder(@CurrentUser UserPrincipal currentUser, @PathVariable(value = "uuid", required = false) UUID folderUuid) {
         // if folder is not specified, return the file is the current user's home directory
         User user = new User();
+        ResponseDto responseDto = new ResponseDto();
+
         user.setId(currentUser.getId());
         if (folderUuid != null) {
             Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
-            return ResponseEntity.ok().body(folder.getFiles());
+            responseDto.setFiles(folder.getFiles());
+            responseDto.setFolders(folder.getFolders());
+            return ResponseEntity.ok().body(responseDto);
         }
 
         Folder folder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, currentUser.getId());
-        return ResponseEntity.ok().body(folder.getFiles());
+        responseDto.setFiles(folder.getFiles());
+        responseDto.setFolders(folder.getFolders());
+        return ResponseEntity.ok().body(responseDto);
     }
 
     // Update a Folder
