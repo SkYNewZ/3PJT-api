@@ -17,6 +17,6 @@ public interface FilesRepository extends JpaRepository<File, Long> {
     File findByUuidAndUser (UUID uuid, User user);
 
     @Transactional
-    File deleteByIdAndUser(Long fileId, User user);
+    Integer deleteByIdAndUser(Long fileId, User user);
 
 }

@@ -103,9 +103,9 @@ public class FilesController {
 
     }
 
-    // Delete a folder
+    // Delete a file
     @DeleteMapping("/files/{uuid}")
-    public String deleteFile(@PathVariable(value = "uuid") UUID fileUuid,
+    public ResponseEntity deleteFile(@PathVariable(value = "uuid") UUID fileUuid,
                            @CurrentUser UserPrincipal currentUser){
 
         User user = new User();
@@ -118,9 +118,8 @@ public class FilesController {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
-
-        File deleteFile = filesRepository.deleteByIdAndUser(file.getId(), user);
-        return "prout";
+        filesRepository.deleteByIdAndUser(file.getId(), user);
+        return ResponseEntity.noContent().build();
 
     }
 
