@@ -93,15 +93,18 @@ public class FolderController {
 
     }
 
-    // Delete a Files
-    @DeleteMapping("/folder/{id}")
-    public ResponseEntity<?> deleteFile(@PathVariable(value = "id") Long folderId) {
-        Folder folder = folderRepository.findById(folderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Folder", "id", folderId));
+    // Delete a Folder
+    @DeleteMapping("/folder/{uuid}")
+    public ResponseEntity<?> deleteFolder(@PathVariable(value = "uuid") UUID folderUuid,
+                                          @CurrentUser UserPrincipal currentUser) {
 
-        folderRepository.delete(folder);
+        User user = new User();
+        user.setId(currentUser.getId());
+        Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
 
-        return ResponseEntity.ok().build();
+        folderRepository.deleteByIdAndUser(folder.getId(), user);
+
+        return ResponseEntity.noContent().build();
     }
 
     private UUID getUuid(){
