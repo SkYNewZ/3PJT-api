@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+  database:
+    image: postgres:10.3-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=wfLMnM9KZGu6
+      - POSTGRES_USER=supdrive
+      - POSTGRES_DB=supdrive
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    depends_on:
+      - database
+    links:
+      - database
+    ports:
+      - 8080:8080
