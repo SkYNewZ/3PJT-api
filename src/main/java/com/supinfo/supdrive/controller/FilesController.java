@@ -77,7 +77,7 @@ public class FilesController {
             byte[] bytes = file.getBytes();
             Path path = Paths.get(location + "/" + fileToUpload.getUuid());
             Files.write(path, bytes);
-            path = Paths.get(location + "/" + fileToUpload.getName());
+            path = Paths.get(location + "/" + file.getOriginalFilename());
             Files.delete(path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,6 +100,27 @@ public class FilesController {
 
         File updateFile = filesRepository.save(file);
         return updateFile;
+
+    }
+
+    // Delete a folder
+    @DeleteMapping("/files/{uuid}")
+    public String deleteFile(@PathVariable(value = "uuid") UUID fileUuid,
+                           @CurrentUser UserPrincipal currentUser){
+
+        User user = new User();
+        user.setId(currentUser.getId());
+        File file = filesRepository.findByUuidAndUser(fileUuid, user);
+        /*
+        try {
+            Path path = Paths.get(location + "/" + file.getUuid());
+            Files.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+        File deleteFile = filesRepository.deleteByIdAndUser(file.getId(), user);
+        return "prout";
 
     }
 
