@@ -11,7 +11,11 @@ import com.supinfo.supdrive.security.UserPrincipal;
 import com.supinfo.supdrive.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.header.Header;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,7 +44,7 @@ public class FilesController {
     FolderRepository folderRepository;
 
     @Value("${storage.location}")
-    private String location;
+    private String LOCATION;
 
     @Autowired
     public FilesController(StorageService storageService) {
@@ -75,9 +79,9 @@ public class FilesController {
 
         try {
             byte[] bytes = file.getBytes();
-            Path path = Paths.get(location + "/" + fileToUpload.getUuid());
+            Path path = Paths.get(LOCATION + "/" + fileToUpload.getUuid());
             Files.write(path, bytes);
-            path = Paths.get(location + "/" + file.getOriginalFilename());
+            path = Paths.get(LOCATION + "/" + file.getOriginalFilename());
             Files.delete(path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,13 +115,16 @@ public class FilesController {
         User user = new User();
         user.setId(currentUser.getId());
         File file = filesRepository.findByUuidAndUser(fileUuid, user);
-        /*
+
         try {
-            Path path = Paths.get(location + "/" + file.getUuid());
+
+            Path path = Paths.get(LOCATION + "/" + file.getUuid());
             Files.delete(path);
+
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
+
         filesRepository.deleteByIdAndUser(file.getId(), user);
         return ResponseEntity.noContent().build();
 

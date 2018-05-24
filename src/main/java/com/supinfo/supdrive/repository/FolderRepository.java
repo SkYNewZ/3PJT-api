@@ -23,5 +23,4 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     Folder findByUuidAndUser(UUID uuid, User user);
 
-
 }
