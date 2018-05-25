@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 
@@ -30,23 +29,22 @@ public class User {
     @JsonIgnore
     private Long id;
 
-    @NotBlank
     private String firstname;
 
-    @NotBlank
     private String lastname;
 
-    @NotBlank
     private String username;
 
-    @NotBlank
     private String email;
 
-    @NotBlank
     @JsonIgnore
     private String password;
 
-    @NotBlank
+    @JsonIgnore
+    private String facebookId;
+
+    private String googleId;
+
     private String provider;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -175,4 +173,19 @@ public class User {
         this.files = files;
     }
 
+    public String getFacebookId() {
+        return facebookId;
+    }
+
+    public void setFacebookId(String facebookId) {
+        this.facebookId = facebookId;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
+    }
 }

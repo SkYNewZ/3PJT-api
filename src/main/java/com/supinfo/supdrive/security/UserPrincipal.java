@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class UserPrincipal implements UserDetails {
+
     @JsonIgnore
     private Long id;
 
@@ -25,18 +26,26 @@ public class UserPrincipal implements UserDetails {
     private String email;
 
     @JsonIgnore
+    private String facebookId;
+
+    @JsonIgnore
+    private String googleId;
+
+    @JsonIgnore
     private String password;
 
     @JsonIgnore
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String firstName, String lastName, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String firstName, String lastName, String username, String email, String password, String facebookId, String googleId, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.facebookId = facebookId;
+        this.googleId = googleId;
         this.authorities = authorities;
     }
 
@@ -52,9 +61,13 @@ public class UserPrincipal implements UserDetails {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
+                user.getFacebookId(),
+                user.getGoogleId(),
                 authorities
         );
     }
+
+    public UserPrincipal() {}
 
     public Long getId() {
         return id;
@@ -70,6 +83,46 @@ public class UserPrincipal implements UserDetails {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getFacebookId() {
+        return facebookId;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setFacebookId(String facebookId) {
+        this.facebookId = facebookId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
