@@ -36,22 +36,26 @@ public class ShareController {
 
     // Get shared file informations
     @GetMapping("/file/{uuid}")
-    public ResponseEntity<File> GetSharedFile(@PathVariable(value = "uuid", required = false) File uuidFile) {
+    public ResponseEntity<?> GetSharedFile(@PathVariable(value = "uuid", required = false) UUID uuidFile) {
 
-        // TODO: 26/05/18 return exception if file not exist
-        File file = filesRepository.findByUuidAndShared(uuidFile.getUuid(), true);
-
-        return ResponseEntity.ok().body(file);
+        if (uuidFile == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This file is not shared !");
+        }else{
+            File file = filesRepository.findByUuidAndShared(uuidFile, true);
+            return ResponseEntity.ok().body(file);
+        }
     }
 
     // Get shared folder informations
     @GetMapping("/folder/{uuid}")
-    public ResponseEntity<Folder> GetSharedFolder(@PathVariable(value = "uuid", required = false) Folder uuidFolder) {
+    public ResponseEntity<?> GetSharedFolder(@PathVariable(value = "uuid", required = false) UUID uuidFolder) {
 
-        // TODO: 26/05/18 return exception if file not exist
-        Folder folder = folderRepository.findByUuidAndShared(uuidFolder.getUuid(), true);
-
-        return ResponseEntity.ok().body(folder);
+        if (uuidFolder == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This folder is not shared !");
+        }else{
+            Folder folder = folderRepository.findByUuidAndShared(uuidFolder, true);
+            return ResponseEntity.ok().body(folder);
+        }
     }
 
     // Get shared folders

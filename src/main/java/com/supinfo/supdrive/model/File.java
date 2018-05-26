@@ -23,7 +23,6 @@ public class File {
     @JsonIgnore
     private Long id;
 
-    @NotBlank
     private String name;
 
     private UUID uuid;

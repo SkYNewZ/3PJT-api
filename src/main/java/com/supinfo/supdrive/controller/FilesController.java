@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.header.Header;
 import org.springframework.web.bind.annotation.*;
@@ -131,19 +132,22 @@ public class FilesController {
         return finalUpdateFile;
     }
 
-    // Share a folder
+    // Share a file
     @PutMapping("/files/share/{uuid}")
-    public File shareFile(@PathVariable(value = "uuid") UUID fileUuid,
+    public ResponseEntity<?> shareFile(@PathVariable(value = "uuid") UUID fileUuid,
                          @Valid @RequestBody File newfile,
                          @CurrentUser UserPrincipal currentUser) {
 
         User user = new User();
         user.setId(currentUser.getId());
         File file = filesRepository.findByUuidAndUser(fileUuid, user);
-        file.setShared(newfile.getShared());
-        File finalUpdateFile = filesRepository.save(file);
-        return finalUpdateFile;
-
+        if (file == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File with uuid " + fileUuid + " not found");
+        }else {
+            file.setShared(newfile.getShared());
+            File finalUpdateFile = filesRepository.save(file);
+            return ResponseEntity.ok().body(finalUpdateFile);
+        }
     }
 
 
