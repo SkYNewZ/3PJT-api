@@ -42,8 +42,10 @@ public class UserController {
     }
 
     @GetMapping("/user/me")
-    public ResponseEntity<UserPrincipal> getUserInfo(@CurrentUser UserPrincipal currentUser) {
-        return ResponseEntity.ok().body(currentUser);
+    public ResponseEntity<User> getUserInfo(@CurrentUser UserPrincipal currentUser) {
+        User user = userRepository.findById(currentUser.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", currentUser.getId()));
+        return ResponseEntity.ok().body(user);
     }
 
 }
