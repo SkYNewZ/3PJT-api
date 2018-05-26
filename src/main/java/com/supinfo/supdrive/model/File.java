@@ -32,6 +32,8 @@ public class File {
 
     private String mimeType;
 
+    private Boolean shared = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = false)
     @JsonIgnore
@@ -130,5 +132,13 @@ public class File {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Boolean getShared() {
+        return shared;
+    }
+
+    public void setShared(Boolean shared) {
+        this.shared = shared;
     }
 }

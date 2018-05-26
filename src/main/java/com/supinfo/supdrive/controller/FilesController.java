@@ -131,6 +131,23 @@ public class FilesController {
         return finalUpdateFile;
     }
 
+    // Share a folder
+    @PutMapping("/files/share/{uuid}")
+    public File shareFile(@PathVariable(value = "uuid") UUID fileUuid,
+                         @Valid @RequestBody File newfile,
+                         @CurrentUser UserPrincipal currentUser) {
+
+        User user = new User();
+        user.setId(currentUser.getId());
+        File file = filesRepository.findByUuidAndUser(fileUuid, user);
+        file.setShared(newfile.getShared());
+        File finalUpdateFile = filesRepository.save(file);
+        return finalUpdateFile;
+
+    }
+
+
+
     // Delete a file
     @DeleteMapping("/files/{uuid}")
     public ResponseEntity deleteFile(@PathVariable(value = "uuid") UUID fileUuid,

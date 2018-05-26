@@ -24,6 +24,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     Folder findByUuidAndUser(UUID uuid, User user);
 
+    Folder findByUuidAndShared(UUID uuid, Boolean shared);
+
     @Transactional
     Integer deleteByIdAndUser(Long folderId, User user);
 

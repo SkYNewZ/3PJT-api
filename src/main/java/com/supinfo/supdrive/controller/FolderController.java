@@ -4,6 +4,7 @@ import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.ResponseDto;
 import com.supinfo.supdrive.model.User;
+import com.supinfo.supdrive.repository.FilesRepository;
 import com.supinfo.supdrive.repository.FolderRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.CurrentUser;
@@ -20,10 +21,10 @@ import java.util.UUID;
 public class FolderController {
 
     @Autowired
-    FolderController folderController;
+    FolderRepository folderRepository;
 
     @Autowired
-    FolderRepository folderRepository;
+    FilesRepository filesRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -115,10 +116,25 @@ public class FolderController {
             folder.setFolder(updateFolder);
             Folder finalUpdateFolder = folderRepository.save(folder);
             return finalUpdateFolder;
-
         }
+    }
 
+    // Share a folder
+    @PutMapping("/folder/share/{uuid}")
+    public Folder shareFolder(@PathVariable(value = "uuid") UUID folderUuid,
+                             @Valid @RequestBody Folder newFolder,
+                             @CurrentUser UserPrincipal currentUser) {
 
+        User user = new User();
+        user.setId(currentUser.getId());
+        Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
+        folder.setShared(newFolder.getShared());
+        folder.getFiles().forEach(file -> {
+            file.setShared(newFolder.getShared());
+            filesRepository.save(file);
+        });
+
+        return folder;
 
     }
 

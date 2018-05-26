@@ -2,6 +2,7 @@ package com.supinfo.supdrive.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import net.bytebuddy.implementation.bind.annotation.Default;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,6 +32,8 @@ public class Folder {
     private UUID uuid;
 
     private String mimeType;
+
+    private Boolean shared = false;
 
     @JsonIgnore
     private Boolean isDefaultDirectory;
@@ -161,5 +164,13 @@ public class Folder {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public Boolean getShared() {
+        return shared;
+    }
+
+    public void setShared(Boolean shared) {
+        this.shared = shared;
     }
 }

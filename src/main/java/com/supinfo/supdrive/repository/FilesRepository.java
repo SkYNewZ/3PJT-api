@@ -1,6 +1,7 @@
 package com.supinfo.supdrive.repository;
 
 import com.supinfo.supdrive.model.File;
+import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +16,10 @@ import java.util.UUID;
 public interface FilesRepository extends JpaRepository<File, Long> {
 
     File findByUuidAndUser (UUID uuid, User user);
+
+    File findByUuidAndShared(UUID uuid, Boolean shared);
+
+    List<File> findByFolderAndShared(Folder folder, Boolean shared);
 
     @Transactional
     Integer deleteByIdAndUser(Long fileId, User user);
