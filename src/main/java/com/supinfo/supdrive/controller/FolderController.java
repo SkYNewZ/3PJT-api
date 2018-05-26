@@ -93,6 +93,35 @@ public class FolderController {
 
     }
 
+    // Move a Folder
+    @PutMapping("/folder/move/{uuid}")
+    public Folder moveFolder(@PathVariable(value = "uuid") UUID folderUuid,
+                               @Valid @RequestBody Folder newFolder,
+                               @CurrentUser UserPrincipal currentUser) {
+
+        User user = new User();
+        user.setId(currentUser.getId());
+        Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
+        if (newFolder.getUuid() == null) {
+
+            Folder updateFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
+            folder.setFolder(updateFolder);
+            Folder finalUpdateFolder = folderRepository.save(folder);
+            return finalUpdateFolder;
+
+        } else {
+
+            Folder updateFolder = folderRepository.findByUuidAndUser(newFolder.getUuid(), user);
+            folder.setFolder(updateFolder);
+            Folder finalUpdateFolder = folderRepository.save(folder);
+            return finalUpdateFolder;
+
+        }
+
+
+
+    }
+
     // Delete a Folder
     @DeleteMapping("/folder/{uuid}")
     public ResponseEntity<?> deleteFolder(@PathVariable(value = "uuid") UUID folderUuid,

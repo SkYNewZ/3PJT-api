@@ -107,6 +107,30 @@ public class FilesController {
 
     }
 
+    // Move a file
+    @PutMapping("/files/move/{uuid}")
+    public File moveFile(@PathVariable(value = "uuid") UUID fileUuid,
+                           @Valid @RequestBody Folder newFolder,
+                           @CurrentUser UserPrincipal currentUser) {
+
+        User user = new User();
+        user.setId(currentUser.getId());
+        File file = filesRepository.findByUuidAndUser(fileUuid, user);
+        if (newFolder.getUuid() == null) {
+
+            Folder updateFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
+            file.setFolder(updateFolder);
+
+        }else {
+
+            Folder updateFolder = folderRepository.findByUuidAndUser(newFolder.getUuid(), user);
+            file.setFolder(updateFolder);
+        }
+
+        File finalUpdateFile = filesRepository.save(file);
+        return finalUpdateFile;
+    }
+
     // Delete a file
     @DeleteMapping("/files/{uuid}")
     public ResponseEntity deleteFile(@PathVariable(value = "uuid") UUID fileUuid,

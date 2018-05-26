@@ -26,7 +26,6 @@ public class Folder {
     @JsonIgnore
     private Long id;
 
-    @NotBlank
     private String name;
 
     private UUID uuid;
