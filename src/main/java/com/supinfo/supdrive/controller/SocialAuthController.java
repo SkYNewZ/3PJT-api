@@ -19,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.facebook.api.Facebook;
 import org.springframework.social.facebook.api.impl.FacebookTemplate;
+import org.springframework.social.google.api.Google;
+import org.springframework.social.google.api.impl.GoogleTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/auth/facebook")
+@RequestMapping("/api/auth/")
 public class SocialAuthController {
 
     @Autowired
@@ -52,8 +54,8 @@ public class SocialAuthController {
     @Autowired
     JwtTokenProvider tokenProvider;
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody SocialAccessToken facebookAccessToken){
+    @PostMapping("facebook/signin")
+    public ResponseEntity<?> facebookAuthenticateUser(@Valid @RequestBody SocialAccessToken facebookAccessToken){
 
 
         Facebook appRequestTemplate = new FacebookTemplate(facebookAccessToken.getAccessToken());
@@ -67,7 +69,7 @@ public class SocialAuthController {
                 .orElseThrow(() -> new AppException("User Role not set."));
 
         user.setRoles(Collections.singleton(userRole));
-        if (!userRepository.existsByEmail(user.getEmail())) {
+        if (!userRepository.existsByFacebookId(user.getFacebookId())) {
 
             User result = userRepository.save(user);
             //create default home folder
@@ -92,6 +94,45 @@ public class SocialAuthController {
         String jwt = tokenProvider.generateToken(authentication);
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
 
+    }
+
+    @PostMapping("google/signin")
+    public ResponseEntity<?> googleAuthenticateUser(@Valid @RequestBody SocialAccessToken googleAccessToken){
+
+        Google appRequestTemplate = new GoogleTemplate(googleAccessToken.getAccessToken());
+        User user = new User();
+
+        user.setGoogleId(appRequestTemplate.userOperations().getUserInfo().getId());
+        user.setProvider("google");
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                .orElseThrow(() -> new AppException("User Role not set."));
+        user.setRoles(Collections.singleton(userRole));
+
+        if (!userRepository.existsByGoogleId(user.getGoogleId())) {
+
+            User result = userRepository.save(user);
+            //create default home folder
+            Folder home =  new Folder();
+            home.setUuid(getUuid());
+            home.setName("home");
+            home.setUser(result);
+            home.setDefaultDirectory(true);
+            home.setMimeType("inode/directory");
+            folderRepository.save(home);
+        }
+
+        User result = userRepository.findByGoogleId(user.getGoogleId());
+        UserPrincipal userPrincipal = new UserPrincipal();
+        userPrincipal.setId(result.getId());
+        userPrincipal.setGoogleId(result.getGoogleId());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipal, null,
+                AuthorityUtils.createAuthorityList("ROLE_USER"));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = tokenProvider.generateToken(authentication);
+
+        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
     private UUID getUuid(){

@@ -23,6 +23,12 @@ UserRepository extends JpaRepository<User, Long> {
 
     Boolean existsByEmail(String email);
 
+    Boolean existsByFacebookId(String facebookId);
+
+    Boolean existsByGoogleId(String googleId);
+
     User findByFacebookId(String facebookId);
+
+    User findByGoogleId(String googleId);
 
 }
