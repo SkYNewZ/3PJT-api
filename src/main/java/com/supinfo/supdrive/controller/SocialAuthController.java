@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/auth/")
+@RequestMapping("/api/auth")
 public class SocialAuthController {
 
     @Autowired
@@ -54,14 +54,14 @@ public class SocialAuthController {
     @Autowired
     JwtTokenProvider tokenProvider;
 
-    @PostMapping("facebook/signin")
-    public ResponseEntity<?> facebookAuthenticateUser(@Valid @RequestBody SocialAccessToken facebookAccessToken){
+    @PostMapping("/facebook/signin")
+    public ResponseEntity<?> facebookAuthenticateUser(@Valid @RequestBody SocialAccessToken facebookAccessToken) {
 
 
         Facebook appRequestTemplate = new FacebookTemplate(facebookAccessToken.getAccessToken());
         User user = new User();
 
-        String [] fields = { "id", "email" };
+        String[] fields = {"id", "email"};
         SocialData userProfile = appRequestTemplate.fetchObject("me", SocialData.class, fields);
         user.setFacebookId(userProfile.getId());
         user.setProvider("facebook");
@@ -70,18 +70,9 @@ public class SocialAuthController {
 
         user.setRoles(Collections.singleton(userRole));
         if (!userRepository.existsByFacebookId(user.getFacebookId())) {
-
-            User result = userRepository.save(user);
-            //create default home folder
-            Folder home =  new Folder();
-            home.setUuid(getUuid());
-            home.setName("home");
-            home.setUser(result);
-            home.setDefaultDirectory(true);
-            home.setMimeType("inode/directory");
-            folderRepository.save(home);
-
+            createUser(user);
         }
+
         User result = userRepository.findByFacebookId(user.getFacebookId());
         UserPrincipal userPrincipal = new UserPrincipal();
         userPrincipal.setId(result.getId());
@@ -96,8 +87,8 @@ public class SocialAuthController {
 
     }
 
-    @PostMapping("google/signin")
-    public ResponseEntity<?> googleAuthenticateUser(@Valid @RequestBody SocialAccessToken googleAccessToken){
+    @PostMapping("/google/signin")
+    public ResponseEntity<?> googleAuthenticateUser(@Valid @RequestBody SocialAccessToken googleAccessToken) {
 
         Google appRequestTemplate = new GoogleTemplate(googleAccessToken.getAccessToken());
         User user = new User();
@@ -109,16 +100,7 @@ public class SocialAuthController {
         user.setRoles(Collections.singleton(userRole));
 
         if (!userRepository.existsByGoogleId(user.getGoogleId())) {
-
-            User result = userRepository.save(user);
-            //create default home folder
-            Folder home =  new Folder();
-            home.setUuid(getUuid());
-            home.setName("home");
-            home.setUser(result);
-            home.setDefaultDirectory(true);
-            home.setMimeType("inode/directory");
-            folderRepository.save(home);
+            createUser(user);
         }
 
         User result = userRepository.findByGoogleId(user.getGoogleId());
@@ -135,7 +117,19 @@ public class SocialAuthController {
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
-    private UUID getUuid(){
+    private void createUser(User user) {
+        User result = userRepository.save(user);
+        //create default home folder
+        Folder home = new Folder();
+        home.setUuid(getUuid());
+        home.setName("home");
+        home.setUser(result);
+        home.setDefaultDirectory(true);
+        home.setMimeType("inode/directory");
+        folderRepository.save(home);
+    }
+
+    private UUID getUuid() {
         return UUID.randomUUID();
     }
 }
