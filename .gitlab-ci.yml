@@ -1,0 +1,47 @@
+image: docker:latest
+
+# Global configuration
+variables:
+    DOCKER_DRIVER: overlay2
+
+services:
+  - docker:dind
+
+before_script:
+  - docker --version
+
+stages:
+  - build_image
+  - registry_deploy
+  - rancher_deploy
+
+Building Docker image:
+  stage: build_image
+  script:
+    - docker build -t app .
+    - mkdir image
+    - docker save app > image/app.tar
+  artifacts:
+    paths:
+      - image
+
+Deploy to Gitlab Registry:
+  stage: registry_deploy
+  script:
+    - apk update && apk add git
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker load -i image/app.tar
+    - docker tag app registry.gitlab.com/douffy/supdrive-api:latest
+    - docker push registry.gitlab.com/douffy/supdrive-api:latest
+    - docker tag app registry.gitlab.com/douffy/supdrive-api:$(git describe --tags --abbrev=0)
+    - docker push registry.gitlab.com/douffy/supdrive-api:$(git describe --tags --abbrev=0)
+  only:
+  - tags
+
+Deploy to Rancher:
+  stage: rancher_deploy
+  script:
+    - docker run -it --rm -e RANCHER_URL=$RANCHER_URL -e RANCHER_ACCESS_KEY=$RANCHER_ACCESS_KEY -e RANCHER_SECRET_KEY=$RANCHER_SECRET_KEY cdrx/rancher-gitlab-deploy:latest upgrade --finish-upgrade --wait-for-upgrade-to-finish --stack SupDrive --service back --new-image registry.gitlab.com/douffy/supdrive-api:$(git describe --tags --abbrev=0)
+  only:
+  - tags
+
