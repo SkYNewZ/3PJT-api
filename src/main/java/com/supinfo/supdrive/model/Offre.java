@@ -1,8 +1,13 @@
 package com.supinfo.supdrive.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "offres")
@@ -14,7 +19,17 @@ public class Offre {
 
     private String name;
 
-    private int offerSize;
+    private Long maxSize;
+
+    @OneToMany(
+            mappedBy = "offre",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            orphanRemoval = true
+    )
+    @Fetch(FetchMode.SELECT)
+    @JsonIgnore
+    private List<User> users = new ArrayList<>();
 
     public Offre() {}
 
@@ -34,11 +49,19 @@ public class Offre {
         this.name = name;
     }
 
-    public int getOfferSize() {
-        return offerSize;
+    public Long getMaxSize() {
+        return maxSize;
     }
 
-    public void setOfferSize(int offerSize) {
-        this.offerSize = offerSize;
+    public void setMaxSize(Long maxSize) {
+        this.maxSize = maxSize;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }

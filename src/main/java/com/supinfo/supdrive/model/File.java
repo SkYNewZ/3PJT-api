@@ -31,6 +31,8 @@ public class File {
 
     private String mimeType;
 
+    private Long size;
+
     private Boolean shared = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -139,5 +141,13 @@ public class File {
 
     public void setShared(Boolean shared) {
         this.shared = shared;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
     }
 }

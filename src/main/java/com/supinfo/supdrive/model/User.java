@@ -12,7 +12,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.*;
 
-
 @Entity
 @Table(name = "app_user", uniqueConstraints = {
         @UniqueConstraint(columnNames = {
@@ -47,6 +46,12 @@ public class User {
     private String googleId;
 
     private String provider;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "offre_id")
+    private Offre offre;
+
+    private Long currentDataSize;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -188,5 +193,21 @@ public class User {
 
     public void setGoogleId(String googleId) {
         this.googleId = googleId;
+    }
+
+    public Long getCurrentDataSize() {
+        return currentDataSize;
+    }
+
+    public void setCurrentDataSize(Long currentDataSize) {
+        this.currentDataSize = currentDataSize;
+    }
+
+    public Offre getOffre() {
+        return offre;
+    }
+
+    public void setOffre(Offre offre) {
+        this.offre = offre;
     }
 }

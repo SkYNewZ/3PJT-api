@@ -1,135 +1,93 @@
 package com.supinfo.supdrive.controller;
 
+import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.exception.StorageFileNotFoundException;
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.Folder;
+import com.supinfo.supdrive.model.Offre;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
-import com.supinfo.supdrive.repository.FolderRepository;
+import com.supinfo.supdrive.repository.OffreRepository;
+import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.CurrentUser;
 import com.supinfo.supdrive.security.UserPrincipal;
-import com.supinfo.supdrive.service.StorageService;
+import com.supinfo.supdrive.service.FilesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.header.Header;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api")
 public class FilesController {
 
-    private final StorageService storageService;
-
-    @Autowired
-    FilesController filesController;
-
     @Autowired
     FilesRepository filesRepository;
 
     @Autowired
-    FolderRepository folderRepository;
-
-    @Value("${storage.location}")
-    private String LOCATION;
+    OffreRepository offreRepository;
 
     @Autowired
-    public FilesController(StorageService storageService) {
-        this.storageService = storageService;
+    UserRepository userRepository;
+
+    @Autowired
+    FilesService filesService;
+
+
+    @Autowired
+    public FilesController(){
     }
 
     // Create a file ( by name & folder's UUID )
     @PostMapping({"/files/upload/{uuid}", "/files/upload"})
-    public ResponseEntity<File> handleFileUpload(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file,
                                                  @PathVariable(value = "uuid", required = false) UUID parentUuidFolder,
                                                  @CurrentUser UserPrincipal currentUser) {
 
-        User user = new User();
-        user.setId(currentUser.getId());
+        User user = getUser(currentUser);
+        Offre offre = offreRepository.findByName(user.getOffre().getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Offre", "id", user.getOffre().getId()));
 
-        Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
-        File fileToUpload = new File();
-        fileToUpload.setName(getNameWithoutExtention(file.getOriginalFilename()));
-        fileToUpload.setUuid(getUuid());
-        fileToUpload.setMimeType(file.getContentType());
-        fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
-        fileToUpload.setFolder(parentFolder);
-        fileToUpload.setUser(user);
-
-
-        if (parentFolder == null) {
-            parentFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
-            fileToUpload.setFolder(parentFolder);
+        if (user.getCurrentDataSize() + file.getSize() > offre.getMaxSize()){
+            return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body("You did not have enough storage");
         }
 
-        storageService.store(file);
-
-        try {
-            byte[] bytes = file.getBytes();
-            Path path = Paths.get(LOCATION + "/" + fileToUpload.getUuid());
-            Files.write(path, bytes);
-            path = Paths.get(LOCATION + "/" + file.getOriginalFilename());
-            Files.delete(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        File toReturn = filesRepository.save(fileToUpload);
-        return ResponseEntity.ok().body(toReturn);
+        File uploadedFile = filesService.uploadFile(file, parentUuidFolder, user);
+        return ResponseEntity.ok().body(uploadedFile);
     }
 
     // Update a File
     @PutMapping("/files/{uuid}")
-    public File updateFile(@PathVariable(value = "uuid") UUID fileUuid,
+    public ResponseEntity<?> updateFile(@PathVariable(value = "uuid") UUID fileUuid,
                                @Valid @RequestBody File fileUpdate,
                                @CurrentUser UserPrincipal currentUser) {
 
-        User user = new User();
-        user.setId(currentUser.getId());
+        User user = getUser(currentUser);
         File file = filesRepository.findByUuidAndUser(fileUuid, user);
-
+        if (fileUpdate.getName() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Filename must not be null");
+        }
         file.setName(fileUpdate.getName());
-
         File updateFile = filesRepository.save(file);
-        return updateFile;
-
+        return ResponseEntity.ok().body(updateFile);
     }
 
     // Move a file
     @PutMapping("/files/move/{uuid}")
-    public File moveFile(@PathVariable(value = "uuid") UUID fileUuid,
+    public ResponseEntity<?> moveFile(@PathVariable(value = "uuid") UUID fileUuid,
                            @Valid @RequestBody Folder newFolder,
                            @CurrentUser UserPrincipal currentUser) {
 
-        User user = new User();
-        user.setId(currentUser.getId());
-        File file = filesRepository.findByUuidAndUser(fileUuid, user);
-        if (newFolder.getUuid() == null) {
-
-            Folder updateFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
-            file.setFolder(updateFolder);
-
-        }else {
-
-            Folder updateFolder = folderRepository.findByUuidAndUser(newFolder.getUuid(), user);
-            file.setFolder(updateFolder);
+        User user = getUser(currentUser);
+        if (newFolder.getUuid() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You have to specify a folder UUID");
         }
-
-        File finalUpdateFile = filesRepository.save(file);
-        return finalUpdateFile;
+        File finalUpdateFile = filesService.moveFile(fileUuid, newFolder, user);
+        return ResponseEntity.ok().body(finalUpdateFile);
     }
 
     // Share a file
@@ -150,29 +108,14 @@ public class FilesController {
         }
     }
 
-
-
     // Delete a file
     @DeleteMapping("/files/{uuid}")
     public ResponseEntity deleteFile(@PathVariable(value = "uuid") UUID fileUuid,
                            @CurrentUser UserPrincipal currentUser){
 
-        User user = new User();
-        user.setId(currentUser.getId());
-        File file = filesRepository.findByUuidAndUser(fileUuid, user);
-
-        try {
-
-            Path path = Paths.get(LOCATION + "/" + file.getUuid());
-            Files.delete(path);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        filesRepository.deleteByIdAndUser(file.getId(), user);
+        User user = getUser(currentUser);
+        filesService.deleteFile(fileUuid, user);
         return ResponseEntity.noContent().build();
-
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)
@@ -180,36 +123,11 @@ public class FilesController {
         return ResponseEntity.notFound().build();
     }
 
-    // Generate a UUID
-    private UUID getUuid() {
-        return UUID.randomUUID();
-    }
+    private User getUser(UserPrincipal currentUser){
 
-    // get the .extention of a file
-    private String getNameExtention(String name) {
-
-        String Result;
-        String pattern = "\\.(\\w+)$";
-        Pattern c = Pattern.compile(pattern);
-        Matcher m = c.matcher(name);
-        if (m.find()) {
-            Result = m.group();
-        } else Result = name;
-
-        return Result;
-    }
-
-    private String getNameWithoutExtention(String name){
-
-        String Result;
-        String pattern = "(.+?)(\\.[^.]*$|$)";
-        Pattern c = Pattern.compile(pattern);
-        Matcher m = c.matcher(name);
-        if (m.find()){
-            Result = m.group(1);
-        }else Result = name;
-
-        return Result;
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", currentUser.getId()));
+        return user;
     }
 
 }
