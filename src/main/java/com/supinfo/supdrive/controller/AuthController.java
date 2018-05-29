@@ -1,18 +1,17 @@
 package com.supinfo.supdrive.controller;
 
 import com.supinfo.supdrive.exception.AppException;
-import com.supinfo.supdrive.model.Folder;
-import com.supinfo.supdrive.model.Role;
-import com.supinfo.supdrive.model.RoleName;
-import com.supinfo.supdrive.model.User;
+import com.supinfo.supdrive.model.*;
 import com.supinfo.supdrive.payload.ApiResponse;
 import com.supinfo.supdrive.payload.JwtAuthenticationResponse;
 import com.supinfo.supdrive.payload.LoginRequest;
 import com.supinfo.supdrive.payload.SignUpRequest;
 import com.supinfo.supdrive.repository.FolderRepository;
+import com.supinfo.supdrive.repository.OffreRepository;
 import com.supinfo.supdrive.repository.RoleRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.JwtTokenProvider;
+import com.supinfo.supdrive.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +42,7 @@ public class AuthController {
     UserRepository userRepository;
 
     @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
-    FolderRepository folderRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    AuthService authService;
 
     @Autowired
     JwtTokenProvider tokenProvider;
@@ -63,7 +56,6 @@ public class AuthController {
                         loginRequest.getPassword()
                 )
         );
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = tokenProvider.generateToken(authentication);
@@ -72,46 +64,27 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+
+        // check if username exist
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
             return new ResponseEntity(new ApiResponse(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
 
+        // check if email exist
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
             return new ResponseEntity(new ApiResponse(false, "Email Address already in use!"),
                     HttpStatus.BAD_REQUEST);
         }
 
-        // Creating user's account
-        User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getUsername(),
-                signUpRequest.getEmail(), signUpRequest.getPassword());
+        //create user
+        User result = authService.createUser(signUpRequest);
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new AppException("User Role not set."));
-
-        user.setRoles(Collections.singleton(userRole));
-        user.setProvider("supdrive");
-        User result = userRepository.save(user);
-
-        //create default home folder
-        Folder home =  new Folder();
-        home.setUuid(getUuid());
-        home.setName("home");
-        home.setUser(result);
-        home.setDefaultDirectory(true);
-        home.setMimeType("inode/directory");
-        folderRepository.save(home);
-
+        // build response
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/users/{username}")
                 .buildAndExpand(result.getUsername()).toUri();
 
         return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
-    }
-
-    private UUID getUuid(){
-        return UUID.randomUUID();
     }
 }

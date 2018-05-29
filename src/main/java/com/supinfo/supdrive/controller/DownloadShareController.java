@@ -6,16 +6,14 @@ import com.supinfo.supdrive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
 
-@RequestMapping("/share")
+@RequestMapping("/api/share")
 public class DownloadShareController {
 
     @Autowired
@@ -26,10 +24,12 @@ public class DownloadShareController {
 
     // download shared's files
     @GetMapping("/file/download/{uuid}")
-    public HttpEntity<byte[]> getFile(@PathVariable(value = "uuid") UUID fileUuid) {
+    public HttpEntity<?> getFile(@PathVariable(value = "uuid") UUID fileUuid) {
 
-        // TODO: 26/05/18 return exception if file not exist
         File file = filesRepository.findByUuidAndShared(fileUuid, true);
+        if (file == null){
+            return new HttpEntity<>(HttpStatus.NOT_FOUND);
+        }
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Disposition", "attachment; filename=" + file.getName() + file.getExtention());
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

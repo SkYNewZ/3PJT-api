@@ -1,5 +1,6 @@
 package com.supinfo.supdrive.controller;
 
+import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.File;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
@@ -23,7 +24,7 @@ import java.util.UUID;
 
 
 @Controller
-@RequestMapping("/download")
+@RequestMapping("/api/download")
 public class DownloadController {
 
     @Autowired
@@ -40,11 +41,10 @@ public class DownloadController {
 
     @GetMapping("/files/{uuid}")
     public HttpEntity<byte[]> getFile(@PathVariable(value = "uuid") UUID fileUuid,
-                                      @RequestParam(value = "download", required = false) Boolean ifDownload,
                                       @CurrentUser UserPrincipal currentUser){
 
-        User user = new User();
-        user.setId(currentUser.getId());
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", currentUser.getId()));
 
         File file = filesRepository.findByUuidAndUser(fileUuid, user);
         HttpHeaders headers = new HttpHeaders();

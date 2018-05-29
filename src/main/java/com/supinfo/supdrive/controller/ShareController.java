@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/share")
+@RequestMapping("/api/share")
 public class ShareController {
 
     @Autowired
