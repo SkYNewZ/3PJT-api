@@ -24,6 +24,8 @@ Building Docker image:
   artifacts:
     paths:
       - image
+  only:
+  - tags
 
 Deploy to Gitlab Registry:
   stage: registry_deploy

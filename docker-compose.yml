@@ -14,9 +14,32 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: on-failure
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/supdrive
+      - SPRING_DATASOURCE_USERNAME=supdrive
+      - SPRING_DATASOURCE_PASSWORD=wfLMnM9KZGu6
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQL94Dialect
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS=false
+      - SPRING_SERVLET_MULTIPART_MAX-FILE-SIZE=1024MB
+      - SPRING_SERVLET_MULTIPART_MAX-REQUEST-SIZE=15MB
+      - SPRING_SERVLET_MULTIPART_ENABLED=true
+      - SPRING_JPA_OPEN-IN-VIEW=false
+      - STORAGE_LOCATION=/tmp/supdrive
+      - APP_JWTSECRET=4N7ECAZB9KSQGSXELXAPQSMRABVXADYWBRXU5XM5WPNR9JDTXC
+      - APP_JWTEXPIRATIONINMS=7200000
     depends_on:
       - database
     links:
       - database
     ports:
       - 8080:8080
+
+  adminer:
+    image: adminer
+    links:
+      - database:db
+    depends_on:
+      - database
+    ports:
+      - 8081:8080
