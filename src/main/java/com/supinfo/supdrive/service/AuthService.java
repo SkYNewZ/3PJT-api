@@ -61,6 +61,7 @@ public class AuthService {
         user.setRoles(Collections.singleton(userRole));
         user.setProvider("supdrive");
         user.setOffre(offre);
+        user.setCurrentDataSize(0L);
         User result = userRepository.save(user);
 
         //create default home folder

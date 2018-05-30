@@ -1,6 +1,7 @@
 package com.supinfo.supdrive.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NaturalId;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "offres")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Offre {
 
     @Id
