@@ -3,6 +3,8 @@ package com.supinfo.supdrive.controller;
 import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.Offre;
 import com.supinfo.supdrive.model.User;
+import com.supinfo.supdrive.payload.UpdateUserRequest;
+import com.supinfo.supdrive.repository.FilesRepository;
 import com.supinfo.supdrive.repository.OffreRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.CurrentUser;
@@ -11,6 +13,8 @@ import com.supinfo.supdrive.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -25,6 +29,9 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    FilesRepository filesRepository;
+
     //check username availabilty
     @GetMapping("/user/checkUsernameAvailability")
     public Boolean checkUsernameAvailability(@RequestParam String username) {
@@ -34,11 +41,23 @@ public class UserController {
     @GetMapping("/user/me")
     public ResponseEntity<User> getUserInfo(@CurrentUser UserPrincipal currentUser) {
         User user = getUser(currentUser);
+        if (filesRepository.sumByUserId(user.getId()) == null) {
+            user.setCurrentDataSize(0L);
+        }else {user.setCurrentDataSize(filesRepository.sumByUserId(user.getId()));}
+
         return ResponseEntity.ok().body(user);
     }
 
+    // get all offre
+    @GetMapping("/offres")
+    public ResponseEntity<?> getAllOffre(){
+
+        List<Offre> offres = offreRepository.selectAll();
+        return ResponseEntity.ok().body(offres);
+    }
+
     //update user
-    @PutMapping("/user")
+    @PutMapping("/user/me")
     public ResponseEntity<?> updateUser(@RequestBody User newUser,
                                         @CurrentUser UserPrincipal currentUser) {
 

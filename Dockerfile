@@ -3,8 +3,8 @@ WORKDIR /app
 COPY . .
 RUN mvn clean install -DskipTests
 
-FROM java:8u111-jdk
+FROM java:8u111-jre-alpine
 WORKDIR /app
 COPY --from=BUILDER /app/target/supdrive.jar .
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "supdrive.jar"]
+ENTRYPOINT ["java", "-jar", "supdrive.jar"]

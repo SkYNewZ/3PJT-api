@@ -52,6 +52,10 @@ public class FilesController {
         Offre offre = offreRepository.findByName(user.getOffre().getName())
                 .orElseThrow(() -> new ResourceNotFoundException("Offre", "id", user.getOffre().getId()));
 
+        if (filesRepository.sumByUserId(user.getId()) == null){
+            user.setCurrentDataSize(0L);
+        }else {user.setCurrentDataSize(filesRepository.sumByUserId(user.getId()));}
+
         if (user.getCurrentDataSize() + file.getSize() > offre.getMaxSize()){
             return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body("You did not have enough storage");
         }
