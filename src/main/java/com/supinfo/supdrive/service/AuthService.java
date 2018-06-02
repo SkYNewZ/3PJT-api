@@ -9,13 +9,10 @@ import com.supinfo.supdrive.repository.RoleRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.UUID;
 

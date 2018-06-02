@@ -16,6 +16,7 @@ import java.util.List;
 public class Offre {
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

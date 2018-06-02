@@ -42,7 +42,6 @@ public class Folder {
 
     @OneToMany(
             mappedBy = "folder",
-            cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             orphanRemoval = true
     )

@@ -64,8 +64,6 @@ public class FilesService {
             e.printStackTrace();
         }
 
-        user.setCurrentDataSize(user.getCurrentDataSize() + file.getSize());
-        userRepository.save(user);
         File uploadedFile = filesRepository.save(fileToUpload);
 
         return uploadedFile;
@@ -92,14 +90,12 @@ public class FilesService {
     public void deleteFile(UUID fileUuid, User user){
 
         File file = filesRepository.findByUuidAndUser(fileUuid, user);
+        filesRepository.deleteByIdAndUser(file.getId(), user);
 
         try {
 
-            Path path = Paths.get(LOCATION + "/" + file.getUuid());
+            Path path = Paths.get(LOCATION + "/" + fileUuid);
             Files.delete(path);
-            user.setCurrentDataSize(user.getCurrentDataSize() - file.getSize());
-            filesRepository.deleteByIdAndUser(file.getId(), user);
-            userRepository.save(user);
 
         } catch (IOException e) {
             e.printStackTrace();

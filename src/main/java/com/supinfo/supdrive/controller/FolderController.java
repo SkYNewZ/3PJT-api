@@ -32,11 +32,15 @@ public class FolderController {
 
     // Create a new Folder
     @PostMapping({"/folder/{uuid}", "/folder"})
-    public ResponseEntity<Folder> createFolder(@Valid @RequestBody Folder folder,
+    public ResponseEntity<?> createFolder(@Valid @RequestBody Folder folder,
                                                @PathVariable(value = "uuid", required = false) UUID parentUuidFolder,
                                                @CurrentUser UserPrincipal currentUser) {
 
         User user = getUser(currentUser);
+        if (folder.getName().isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("folder name must not be null");
+        }
+
         Folder createdFolder = folderService.createFolder(folder, parentUuidFolder, user);
         return ResponseEntity.ok().body(createdFolder);
     }

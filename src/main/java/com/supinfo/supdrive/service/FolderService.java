@@ -1,15 +1,22 @@
 package com.supinfo.supdrive.service;
 
+import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.ResponseDto;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
 import com.supinfo.supdrive.repository.FolderRepository;
+import com.supinfo.supdrive.repository.OffreRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Component
@@ -26,6 +33,12 @@ public class FolderService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    FilesService filesService;
+
+    @Value("${storage.location}")
+    private String LOCATION;
 
     public Folder createFolder(Folder folder, UUID parentUuidFolder, User user){
 
@@ -84,8 +97,7 @@ public class FolderService {
         Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
         folder.setShared(newFolder.getShared());
         folder.getFiles().forEach(file -> {
-            file.setShared(newFolder.getShared());
-            filesRepository.save(file);
+            filesService.deleteFile(file.getUuid(), user);
         });
         folder.getFolders().forEach(folder1 -> {
             shareFolder(folder1.getUuid(), newFolder, user);
