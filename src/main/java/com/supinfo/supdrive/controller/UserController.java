@@ -38,7 +38,7 @@ public class UserController {
     }
 
     //update user
-    @PutMapping("/user")
+    @PutMapping("/user/me")
     public ResponseEntity<?> updateUser(@RequestBody User newUser,
                                         @CurrentUser UserPrincipal currentUser) {
 
