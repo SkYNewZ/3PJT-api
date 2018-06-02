@@ -57,8 +57,8 @@ public class UserController {
     }
 
     //update user
-    @PutMapping("/user")
-    public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest newUser,
+    @PutMapping("/user/me")
+    public ResponseEntity<?> updateUser(@RequestBody User newUser,
                                         @CurrentUser UserPrincipal currentUser) {
 
         User user = getUser(currentUser);
