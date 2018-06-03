@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "offres")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Proxy(lazy = false)
 public class Offre {
 
     @Id

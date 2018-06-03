@@ -2,6 +2,7 @@ package com.supinfo.supdrive.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Proxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "files")
 @EntityListeners(AuditingEntityListener.class)
+@Proxy(lazy = false)
 public class File {
 
     @Id
