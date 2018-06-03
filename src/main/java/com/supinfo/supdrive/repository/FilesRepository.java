@@ -33,6 +33,9 @@ public interface FilesRepository extends JpaRepository<File, Long> {
     @Query(value = "select * from files where name like '%' + (:queryName) + '%' and user_id = (:userId)", nativeQuery = true)
     List<File> findByName(@Param("queryName") String queryName, @Param("userId") long userId);
 
+    @Query(value = "select * from files where shared = true", nativeQuery = true)
+    List<File> getAllShareFiles();
+
     @Transactional
     Integer deleteByIdAndUser(Long fileId, User user);
 

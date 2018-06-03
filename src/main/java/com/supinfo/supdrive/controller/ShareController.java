@@ -73,4 +73,14 @@ public class ShareController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This folder is not shared");
         }
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllShareData(){
+
+        ResponseDto responseDto = new ResponseDto();
+        responseDto.setFolders(folderRepository.getAllShareFolder());
+        responseDto.setFiles(filesRepository.getAllShareFiles());
+        
+        return ResponseEntity.ok().body(responseDto);
+    }
 }
