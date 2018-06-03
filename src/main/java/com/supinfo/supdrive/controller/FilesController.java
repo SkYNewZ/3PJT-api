@@ -76,6 +76,7 @@ public class FilesController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Filename must not be null");
         }
         file.setName(fileUpdate.getName());
+        file.setUpdatedBy(user.getUsername());
         File updateFile = filesRepository.save(file);
         return ResponseEntity.ok().body(updateFile);
     }

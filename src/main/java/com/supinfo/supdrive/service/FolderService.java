@@ -50,6 +50,8 @@ public class FolderService {
         createdFolder.setName(folder.getName());
         createdFolder.setUuid(getUuid());
         createdFolder.setUser(user);
+        createdFolder.setCreatedBy(user.getUsername());
+        createdFolder.setUpdatedBy(user.getUsername());
         createdFolder.setMimeType("inode/directory");
         folderRepository.save(createdFolder);
         return createdFolder;

@@ -69,6 +69,7 @@ public class FolderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Folder name must be set.");
         }
         folder.setName(folderUpdate.getName());
+        folder.setUpdatedBy(user.getUsername());
         Folder updateFolder = folderRepository.save(folder);
         return ResponseEntity.ok().body(updateFolder);
     }

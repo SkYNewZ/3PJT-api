@@ -69,10 +69,16 @@ public class Folder {
     @CreatedDate
     private Date createdAt;
 
+    @Column(nullable = false, updatable = false)
+    private String createdBy;
+
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date updatedAt;
+
+    @Column(nullable = false)
+    private String updatedBy;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -175,5 +181,21 @@ public class Folder {
 
     public void setShared(Boolean shared) {
         this.shared = shared;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }
