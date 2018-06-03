@@ -1,22 +1,15 @@
 package com.supinfo.supdrive.service;
 
-import com.supinfo.supdrive.exception.ResourceNotFoundException;
 import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.ResponseDto;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
 import com.supinfo.supdrive.repository.FolderRepository;
-import com.supinfo.supdrive.repository.OffreRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 @Component
@@ -44,22 +37,20 @@ public class FolderService {
 
         Folder createdFolder = new Folder();
         if (parentUuidFolder != null) {
-            createdFolder.setFolder(folderRepository.findByUuidAndUser(parentUuidFolder, user));
+            Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
+            createdFolder.setFolder(parentFolder);
+            createdFolder.setShared(parentFolder.getShared());
+
         }else {
-            createdFolder.setFolder(folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId()));
+            Folder parentFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
+            createdFolder.setFolder(parentFolder);
+            createdFolder.setShared(parentFolder.getShared());
         }
         createdFolder.setDefaultDirectory(false);
         createdFolder.setName(folder.getName());
         createdFolder.setUuid(getUuid());
         createdFolder.setUser(user);
         createdFolder.setMimeType("inode/directory");
-
-        // check if parent folder is shared
-        Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
-        if (parentFolder.getShared() == true){
-            createdFolder.setShared(true);
-        }else {createdFolder.setShared(false);}
-
         folderRepository.save(createdFolder);
         return createdFolder;
     }
