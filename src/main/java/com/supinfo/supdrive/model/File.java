@@ -35,7 +35,7 @@ public class File {
 
     private Long size;
 
-    private Boolean shared = false;
+    private Boolean shared;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id")
@@ -52,10 +52,16 @@ public class File {
     @CreatedDate
     private Date createdAt;
 
+    @Column(nullable = false, updatable = false)
+    private String createdBy;
+
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date updatedAt;
+
+    @Column(nullable = false)
+    private String updatedBy;
 
     public File() {}
 
@@ -151,5 +157,21 @@ public class File {
 
     public void setSize(Long size) {
         this.size = size;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

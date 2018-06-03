@@ -122,6 +122,8 @@ public class FilesService {
         }else {fileToUpload.setShared(false);}
 
         fileToUpload.setUser(user);
+        fileToUpload.setCreatedBy(user.getUsername());
+        fileToUpload.setUpdatedBy(user.getUsername());
         fileToUpload.setSize(file.getSize());
 
 
