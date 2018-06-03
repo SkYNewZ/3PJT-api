@@ -74,13 +74,14 @@ public class ShareController {
         }
     }
 
+    // get all shared file & folder
     @GetMapping("/all")
     public ResponseEntity<?> getAllShareData(){
 
         ResponseDto responseDto = new ResponseDto();
         responseDto.setFolders(folderRepository.getAllShareFolder());
         responseDto.setFiles(filesRepository.getAllShareFiles());
-        
+
         return ResponseEntity.ok().body(responseDto);
     }
 }

@@ -8,6 +8,7 @@ import com.supinfo.supdrive.repository.FolderRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.CurrentUser;
 import com.supinfo.supdrive.security.UserPrincipal;
+import com.supinfo.supdrive.service.DownloadService;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,9 @@ public class DownloadController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    DownloadService downloadService;
+
     @Value("${storage.location}")
     private String LOCATION;
 
@@ -50,52 +54,19 @@ public class DownloadController {
                                       @CurrentUser UserPrincipal currentUser){
 
         User user = getUser(currentUser);
-
-        File file = filesRepository.findByUuidAndUser(fileUuid, user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Disposition", "attachment; filename=" + file.getName() + file.getExtention());
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        FileSystemResource fileSystemResource = new FileSystemResource(LOCATION + "/" + file.getUuid());
-
-        HttpEntity httpEntity = new HttpEntity(fileSystemResource, headers);
-
+        HttpEntity httpEntity = downloadService.downloadFile(fileUuid, user);
         return httpEntity;
     }
 
-    @GetMapping("/zip/files/{uuid}")
+    @GetMapping(value = "/zip/files/{uuid}", produces="application/zip" )
     public HttpEntity<byte[]> zipFiles(@PathVariable(value = "uuid") UUID fileUuid,
                                        @CurrentUser UserPrincipal currentUser) throws IOException {
 
         User user = getUser(currentUser);
-
-        File file = filesRepository.findByUuidAndUser(fileUuid, user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("content-Disposition", "attachment; filename=" + file.getName() + ".zip");
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
-        ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
-
-        zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
-        FileInputStream fileInputStream = new FileInputStream(LOCATION + "/" + file.getUuid());
-        IOUtils.copy(fileInputStream, zipOutputStream);
-
-        fileInputStream.close();
-        zipOutputStream.closeEntry();
-
-        if (zipOutputStream != null) {
-            zipOutputStream.finish();
-            zipOutputStream.flush();
-            IOUtils.closeQuietly(zipOutputStream);
-        }
-        IOUtils.closeQuietly(bufferedOutputStream);
-        IOUtils.closeQuietly(byteArrayOutputStream);
-        HttpEntity httpEntity = new HttpEntity(zipOutputStream, headers);
+        HttpEntity httpEntity = downloadService.downloadZipFile(fileUuid, user);
         return httpEntity;
-
     }
-
+    
     private User getUser(UserPrincipal currentUser){
 
         User user = userRepository.findById(currentUser.getId())
