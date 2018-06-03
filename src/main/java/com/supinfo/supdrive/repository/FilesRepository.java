@@ -30,6 +30,9 @@ public interface FilesRepository extends JpaRepository<File, Long> {
     @Query(value = "select sum (f.size) as currentDataSize from files f where user_id = (:userId)", nativeQuery = true)
     Long sumByUserId(@Param("userId") Long userId);
 
+    @Query(value = "select * from files where name like '%' + (:queryName) + '%' and user_id = (:userId)", nativeQuery = true)
+    List<File> findByName(@Param("queryName") String queryName, @Param("userId") long userId);
+
     @Transactional
     Integer deleteByIdAndUser(Long fileId, User user);
 
