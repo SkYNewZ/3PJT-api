@@ -35,7 +35,7 @@ public class File {
 
     private Long size;
 
-    private Boolean shared = false;
+    private Boolean shared;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id")

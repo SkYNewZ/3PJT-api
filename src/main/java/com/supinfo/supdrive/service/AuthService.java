@@ -68,6 +68,8 @@ public class AuthService {
         home.setUser(result);
         home.setDefaultDirectory(true);
         home.setShared(false);
+        home.setUpdatedBy(user.getUsername());
+        home.setCreatedBy(user.getUsername());
         home.setMimeType("inode/directory");
         folderRepository.save(home);
 

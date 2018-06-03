@@ -37,7 +37,7 @@ public class Folder {
 
     private String mimeType;
 
-    private Boolean shared = false;
+    private Boolean shared;
 
     @JsonIgnore
     private Boolean isDefaultDirectory;

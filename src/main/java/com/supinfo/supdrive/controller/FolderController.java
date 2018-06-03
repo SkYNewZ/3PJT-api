@@ -92,7 +92,7 @@ public class FolderController {
                              @CurrentUser UserPrincipal currentUser) {
 
         User user = getUser(currentUser);
-        if (!newFolder.getShared() != true || newFolder.getShared() != false){
+        if (newFolder.getShared() != true && newFolder.getShared() != false){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("folder shared must be true or false");
         }
         Folder folder = folderService.shareFolder(folderUuid, newFolder, user);

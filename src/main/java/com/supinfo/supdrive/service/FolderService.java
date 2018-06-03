@@ -95,9 +95,13 @@ public class FolderService {
 
         Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
         folder.setShared(newFolder.getShared());
+        folderRepository.save(folder);
+
         folder.getFiles().forEach(file -> {
-            filesService.deleteFile(file.getUuid(), user);
+            file.setShared(true);
+            filesRepository.save(file);
         });
+
         folder.getFolders().forEach(folder1 -> {
             shareFolder(folder1.getUuid(), newFolder, user);
         });
