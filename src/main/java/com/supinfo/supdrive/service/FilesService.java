@@ -110,13 +110,20 @@ public class FilesService {
         fileToUpload.setMimeType(file.getContentType());
         fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
         fileToUpload.setFolder(parentFolder);
+        // check if parentFolder exist
         if (parentFolder == null) {
             parentFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
             fileToUpload.setFolder(parentFolder);
         }
+        //check if parentFolder is shared
+        parentFolder = folderRepository.findByUuidAndUser(parentFolder.getUuid(), user);
+        if (parentFolder.getShared() == true){
+            fileToUpload.setShared(true);
+        }else {fileToUpload.setShared(false);}
+
         fileToUpload.setUser(user);
         fileToUpload.setSize(file.getSize());
-        fileToUpload.setShared(false);
+
 
         return fileToUpload;
     }

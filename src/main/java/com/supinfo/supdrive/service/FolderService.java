@@ -53,7 +53,13 @@ public class FolderService {
         createdFolder.setUuid(getUuid());
         createdFolder.setUser(user);
         createdFolder.setMimeType("inode/directory");
-        createdFolder.setShared(false);
+
+        // check if parent folder is shared
+        Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
+        if (parentFolder.getShared() == true){
+            createdFolder.setShared(true);
+        }else {createdFolder.setShared(false);}
+
         folderRepository.save(createdFolder);
         return createdFolder;
     }
