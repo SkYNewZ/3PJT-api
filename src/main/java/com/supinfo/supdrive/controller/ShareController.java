@@ -64,7 +64,7 @@ public class ShareController {
 
         ResponseDto responseDto = new ResponseDto();
         Folder folder = folderRepository.findByUuidAndShared(folderUuid, true);
-        if (!folder.getShared()){
+        if (folder.getShared() == true){
             List<File> files = filesRepository.findByFolderAndShared(folder, true);
             responseDto.setFiles(files);
             responseDto.setFolders(folder.getFolders());
@@ -72,5 +72,16 @@ public class ShareController {
         }else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("This folder is not shared");
         }
+    }
+
+    // get all shared file & folder
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllShareData(){
+
+        ResponseDto responseDto = new ResponseDto();
+        responseDto.setFolders(folderRepository.getAllShareFolder());
+        responseDto.setFiles(filesRepository.getAllShareFiles());
+
+        return ResponseEntity.ok().body(responseDto);
     }
 }
