@@ -43,7 +43,9 @@ public class UserController {
         User user = getUser(currentUser);
         if (filesRepository.sumByUserId(user.getId()) == null) {
             user.setCurrentDataSize(0L);
-        }else {user.setCurrentDataSize(filesRepository.sumByUserId(user.getId()));}
+        } else {
+            user.setCurrentDataSize(filesRepository.sumByUserId(user.getId()));
+        }
 
         return ResponseEntity.ok().body(user);
     }
@@ -51,7 +53,7 @@ public class UserController {
     // get all offre
     @GetMapping("/offers")
     @ResponseBody
-    public List <Offre> getAllOffers(){
+    public List<Offre> getAllOffers() {
 
         return offreRepository.selectAll();
     }
@@ -68,23 +70,19 @@ public class UserController {
 
     //update user Offer
     @PutMapping("/user/offer")
-    public ResponseEntity<?> updateUserOffer(@RequestBody Offre offre,
-                                             @CurrentUser UserPrincipal currentUser) {
+    @ResponseBody
+    public Offre updateUserOffer(@RequestBody Offre offre,
+                                 @CurrentUser UserPrincipal currentUser) {
 
         User user = getUser(currentUser);
         Offre newOffre = offreRepository.findByName(offre.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("Offre", "id", offre.getId()));
-
-        if (newOffre.getName()!= null) {
-            user.setOffre(newOffre);
-            userRepository.save(user);
-        }else {
-            return ResponseEntity.ok().body("This offer does not exist");
-        }
-        return ResponseEntity.ok().body("User " + user.getUsername() + " have now the " + newOffre.getName() + " Offer");
+                .orElseThrow(() -> new ResourceNotFoundException("Offre", "id", offre));
+        user.setOffre(newOffre);
+        userRepository.save(user);
+        return newOffre;
     }
 
-    private User getUser(UserPrincipal currentUser){
+    private User getUser(UserPrincipal currentUser) {
 
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", currentUser.getId()));
