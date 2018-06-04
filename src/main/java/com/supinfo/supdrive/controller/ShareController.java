@@ -64,7 +64,7 @@ public class ShareController {
 
         ResponseDto responseDto = new ResponseDto();
         Folder folder = folderRepository.findByUuidAndShared(folderUuid, true);
-        if (!folder.getShared()){
+        if (folder.getShared() == true){
             List<File> files = filesRepository.findByFolderAndShared(folder, true);
             responseDto.setFiles(files);
             responseDto.setFolders(folder.getFolders());
