@@ -26,6 +26,10 @@ public class Offre {
 
     private Long maxSize;
 
+    private String description;
+
+    private Integer price;
+
     @OneToMany(
             mappedBy = "offre",
             cascade = CascadeType.ALL,
@@ -36,7 +40,8 @@ public class Offre {
     @JsonIgnore
     private List<User> users = new ArrayList<>();
 
-    public Offre() {}
+    public Offre() {
+    }
 
     public Long getId() {
         return id;
@@ -68,5 +73,21 @@ public class Offre {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
     }
 }
