@@ -33,18 +33,18 @@ public class SearchController {
 
     @GetMapping("/search")
     public ResponseEntity<?> getSearch(@RequestParam("q") String name,
-                                       @CurrentUser UserPrincipal currentUser){
+                                       @CurrentUser UserPrincipal currentUser) {
 
         User user = getUser(currentUser);
-        String queryName = "%"+name+"%";
+        String queryName = "%" + name + "%";
         ResponseDto responseDto = new ResponseDto();
-        responseDto.setFiles(filesRepository.findByName(name, user.getId()));
+        responseDto.setFiles(filesRepository.findByName(queryName, user.getId()));
         responseDto.setFolders(folderRepository.findByName(queryName, user.getId()));
 
         return ResponseEntity.ok().body(responseDto);
     }
 
-    private User getUser(UserPrincipal currentUser){
+    private User getUser(UserPrincipal currentUser) {
 
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", currentUser.getId()));

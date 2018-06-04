@@ -29,7 +29,7 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     Folder findByUuidAndShared(UUID uuid, Boolean shared);
 
-    @Query(value = "select * from folders where name like (:queryName) and user_id = (:userId)", nativeQuery = true)
+    @Query(value = "select * from folders where name ilike (:queryName) and user_id = (:userId)", nativeQuery = true)
     List<Folder> findByName(@Param("queryName") String queryName, @Param("userId") long userId);
 
     @Query(value = "select * from folders where shared = true", nativeQuery = true)
