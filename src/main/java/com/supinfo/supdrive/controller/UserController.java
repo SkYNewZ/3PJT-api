@@ -49,11 +49,11 @@ public class UserController {
     }
 
     // get all offre
-    @GetMapping("/offres")
-    public ResponseEntity<?> getAllOffre(){
+    @GetMapping("/offers")
+    @ResponseBody
+    public List <Offre> getAllOffers(){
 
-        List<Offre> offres = offreRepository.selectAll();
-        return ResponseEntity.ok().body(offres);
+        return offreRepository.selectAll();
     }
 
     //update user
