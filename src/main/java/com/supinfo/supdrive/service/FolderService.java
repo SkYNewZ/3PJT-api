@@ -33,7 +33,7 @@ public class FolderService {
     @Value("${storage.location}")
     private String LOCATION;
 
-    public Folder createFolder(Folder folder, UUID parentUuidFolder, User user){
+    public Folder createFolder(Folder folder, UUID parentUuidFolder, User user) {
 
         Folder createdFolder = new Folder();
         if (parentUuidFolder != null) {
@@ -41,7 +41,7 @@ public class FolderService {
             createdFolder.setFolder(parentFolder);
             createdFolder.setShared(parentFolder.getShared());
 
-        }else {
+        } else {
             Folder parentFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
             createdFolder.setFolder(parentFolder);
             createdFolder.setShared(parentFolder.getShared());
@@ -57,24 +57,28 @@ public class FolderService {
         return createdFolder;
     }
 
-    public ResponseDto getFolderContent(UUID folderUuid, User user){
+    public ResponseDto getFolderContent(UUID folderUuid, User user) {
 
         ResponseDto responseDto = new ResponseDto();
 
         if (folderUuid != null) {
             Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
-            responseDto.setFiles(folder.getFiles());
-            responseDto.setFolders(folder.getFolders());
+            if (folder != null) { // if folder exist
+                responseDto.setFiles(folder.getFiles());
+                responseDto.setFolders(folder.getFolders());
+            }
             return responseDto;
-        }else {
+        } else {
             Folder folder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
-            responseDto.setFiles(folder.getFiles());
-            responseDto.setFolders(folder.getFolders());
+            if (folder != null) {
+                responseDto.setFiles(folder.getFiles());
+                responseDto.setFolders(folder.getFolders());
+            }
             return responseDto;
         }
     }
 
-    public Folder moveFolder(UUID folderUuid, Folder newFolder, User user){
+    public Folder moveFolder(UUID folderUuid, Folder newFolder, User user) {
 
         Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
         if (newFolder.getUuid() == null) {
@@ -91,7 +95,7 @@ public class FolderService {
         }
     }
 
-    public Folder shareFolder(UUID folderUuid, Folder newFolder, User user){
+    public Folder shareFolder(UUID folderUuid, Folder newFolder, User user) {
 
         Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
         folder.setShared(newFolder.getShared());
@@ -109,14 +113,14 @@ public class FolderService {
         return folder;
     }
 
-    public void deleteFolder(UUID folderUuid, User user){
+    public void deleteFolder(UUID folderUuid, User user) {
 
         Folder folder = folderRepository.findByUuidAndUser(folderUuid, user);
         folderRepository.deleteByIdAndUser(folder.getId(), user);
     }
 
-        private UUID getUuid(){
-            UUID uuid = UUID.randomUUID();
-            return uuid;
-        }
+    private UUID getUuid() {
+        UUID uuid = UUID.randomUUID();
+        return uuid;
+    }
 }
