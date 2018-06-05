@@ -52,7 +52,7 @@ public class File {
     @CreatedDate
     private Date createdAt;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private String createdBy;
 
     @Column(nullable = false)
@@ -60,7 +60,6 @@ public class File {
     @LastModifiedDate
     private Date updatedAt;
 
-    @Column(nullable = false)
     private String updatedBy;
 
     public File() {}

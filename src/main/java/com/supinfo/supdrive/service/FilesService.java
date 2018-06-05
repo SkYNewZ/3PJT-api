@@ -48,7 +48,7 @@ public class FilesService {
     @Value("${storage.location}")
     private String LOCATION;
 
-    public File uploadFile(MultipartFile file, UUID parentUuidFolder, User user){
+    public File uploadFile(MultipartFile file, UUID parentUuidFolder, User user) {
 
         Folder parentFolder = folderRepository.findByUuidAndUser(parentUuidFolder, user);
         File fileToUpload = createFile(file, parentFolder, user);
@@ -69,7 +69,7 @@ public class FilesService {
         return uploadedFile;
     }
 
-    public File moveFile(UUID fileUuid, Folder newFolder, User user){
+    public File moveFile(UUID fileUuid, Folder newFolder, User user) {
 
         File file = filesRepository.findByUuidAndUser(fileUuid, user);
         if (newFolder.getUuid() == null) {
@@ -77,7 +77,7 @@ public class FilesService {
             Folder updateFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
             file.setFolder(updateFolder);
 
-        }else {
+        } else {
 
             Folder updateFolder = folderRepository.findByUuidAndUser(newFolder.getUuid(), user);
             file.setFolder(updateFolder);
@@ -87,7 +87,7 @@ public class FilesService {
         return finalUpdateFile;
     }
 
-    public void deleteFile(UUID fileUuid, User user){
+    public void deleteFile(UUID fileUuid, User user) {
 
         File file = filesRepository.findByUuidAndUser(fileUuid, user);
         filesRepository.deleteByIdAndUser(file.getId(), user);
@@ -102,7 +102,7 @@ public class FilesService {
         }
     }
 
-    private File createFile(MultipartFile file, Folder parentFolder, User user){
+    private File createFile(MultipartFile file, Folder parentFolder, User user) {
 
         File fileToUpload = new File();
         fileToUpload.setName(getNameWithoutExtention(file.getOriginalFilename()));
@@ -110,16 +110,15 @@ public class FilesService {
         fileToUpload.setMimeType(file.getContentType());
         fileToUpload.setExtention(getNameExtention(file.getOriginalFilename()));
         fileToUpload.setFolder(parentFolder);
-        // check if parentFolder exist
+        // if does not exist in the request, get the user's default directory
         if (parentFolder == null) {
             parentFolder = folderRepository.findByNameAndIsDefaultDirectoryAndUserId("home", true, user.getId());
             fileToUpload.setFolder(parentFolder);
+        } else { //else get the given directory
+            parentFolder = folderRepository.findByUuidAndUser(parentFolder.getUuid(), user);
+            //check if parentFolder is shared
+            fileToUpload.setShared(parentFolder.getShared());
         }
-        //check if parentFolder is shared
-        parentFolder = folderRepository.findByUuidAndUser(parentFolder.getUuid(), user);
-        if (parentFolder.getShared() == true){
-            fileToUpload.setShared(true);
-        }else {fileToUpload.setShared(false);}
 
         fileToUpload.setUser(user);
         fileToUpload.setCreatedBy(user.getUsername());
@@ -149,15 +148,15 @@ public class FilesService {
         return Result;
     }
 
-    private String getNameWithoutExtention(String name){
+    private String getNameWithoutExtention(String name) {
 
         String Result;
         String pattern = "(.+?)(\\.[^.]*$|$)";
         Pattern c = Pattern.compile(pattern);
         Matcher m = c.matcher(name);
-        if (m.find()){
+        if (m.find()) {
             Result = m.group(1);
-        }else Result = name;
+        } else Result = name;
 
         return Result;
     }

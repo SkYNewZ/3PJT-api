@@ -69,7 +69,7 @@ public class Folder {
     @CreatedDate
     private Date createdAt;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private String createdBy;
 
     @Column(nullable = false)
@@ -77,7 +77,6 @@ public class Folder {
     @LastModifiedDate
     private Date updatedAt;
 
-    @Column(nullable = false)
     private String updatedBy;
 
     @JsonIgnore
