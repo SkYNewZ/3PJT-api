@@ -63,12 +63,13 @@ public class SocialAuthService {
         Facebook appRequestTemplate = new FacebookTemplate(facebookAccessToken.getAccessToken());
 
         // get facebook info
-        String[] fields = {"id", "email"};
+        String[] fields = {"id", "name"};
         SocialData facebookUserProfile = appRequestTemplate.fetchObject("me", SocialData.class, fields);
 
         // create user with facebook
         User user = new User();
         user.setFacebookId(facebookUserProfile.getId());
+        user.setSocialName(facebookUserProfile.getName());
         user.setProvider("facebook");
         user.setRoles(Collections.singleton(userRole));
         user.setOffre(offre);
@@ -100,6 +101,7 @@ public class SocialAuthService {
         //create user with google
         User user = new User();
         user.setGoogleId(appRequestTemplate.userOperations().getUserInfo().getId());
+        user.setSocialName(appRequestTemplate.userOperations().getUserInfo().getName());
         user.setProvider("google");
         user.setRoles(Collections.singleton(userRole));
         user.setOffre(offre);

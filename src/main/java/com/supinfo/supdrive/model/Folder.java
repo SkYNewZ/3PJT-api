@@ -52,7 +52,6 @@ public class Folder {
 
     @OneToMany(
             mappedBy = "folder",
-            cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             orphanRemoval = true
     )
@@ -69,7 +68,7 @@ public class Folder {
     @CreatedDate
     private Date createdAt;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false, nullable = false)
     private String createdBy;
 
     @Column(nullable = false)
