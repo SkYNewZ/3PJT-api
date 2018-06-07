@@ -2,6 +2,7 @@ package com.supinfo.supdrive.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.micrometer.core.lang.Nullable;
 import org.hibernate.annotations.Proxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.util.Date;
 import java.util.UUID;
 
@@ -52,7 +54,7 @@ public class File {
     @CreatedDate
     private Date createdAt;
 
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private String createdBy;
 
     @Column(nullable = false)
@@ -60,6 +62,7 @@ public class File {
     @LastModifiedDate
     private Date updatedAt;
 
+    @Column(nullable = false)
     private String updatedBy;
 
     public File() {}

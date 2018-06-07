@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Proxy;
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -37,6 +38,8 @@ public class User {
     private String username;
 
     private String email;
+
+    private String socialName;
 
     @JsonIgnore
     private String password;
@@ -210,5 +213,13 @@ public class User {
 
     public void setOffre(Offre offre) {
         this.offre = offre;
+    }
+
+    public String getSocialName() {
+        return socialName;
+    }
+
+    public void setSocialName(String socialName) {
+        this.socialName = socialName;
     }
 }

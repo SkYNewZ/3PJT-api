@@ -121,8 +121,8 @@ public class FilesService {
         }
 
         fileToUpload.setUser(user);
-        fileToUpload.setCreatedBy(user.getUsername());
-        fileToUpload.setUpdatedBy(user.getUsername());
+        fileToUpload.setCreatedBy(user.getProvider().equals("supdrive") ? user.getUsername() : user.getSocialName());
+        fileToUpload.setUpdatedBy(user.getProvider().equals("supdrive") ? user.getUsername() : user.getSocialName());
         fileToUpload.setSize(file.getSize());
 
 
