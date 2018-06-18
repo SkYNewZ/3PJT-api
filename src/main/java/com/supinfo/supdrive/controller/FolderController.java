@@ -69,7 +69,7 @@ public class FolderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Folder name must be set.");
         }
         folder.setName(folderUpdate.getName());
-        folder.setUpdatedBy(user.getUsername());
+        folder.setUpdatedBy(user.getProvider().equals("supdrive") ? user.getUsername() : user.getSocialName());
         Folder updateFolder = folderRepository.save(folder);
         return ResponseEntity.ok().body(updateFolder);
     }
