@@ -85,6 +85,25 @@ public class FolderController {
         return folder;
     }
 
+    // Move a folder
+    @PutMapping("/folder/moveback/{uuid}")
+    public ResponseEntity<?> moveBackFolder(@PathVariable(value = "uuid") UUID folderUuid,
+                                          @CurrentUser UserPrincipal currentUser) {
+
+        User user = getUser(currentUser);
+        Folder actualFolder = folderRepository.findByUuidAndUser(folderUuid, user);
+        Folder checkIfNotHome = actualFolder.getFolder();
+
+        if (checkIfNotHome.getName().equals("home")){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("You can't move here.");
+        }
+
+        Folder newFolder = checkIfNotHome.getFolder();
+
+        Folder finalUpdateFolder = folderService.moveFolder(folderUuid, newFolder, user);
+        return ResponseEntity.ok().body(finalUpdateFolder);
+    }
+
     // Share a folder
     @PutMapping("/folder/share/{uuid}")
     public ResponseEntity<?> shareFolder(@PathVariable(value = "uuid") UUID folderUuid,
