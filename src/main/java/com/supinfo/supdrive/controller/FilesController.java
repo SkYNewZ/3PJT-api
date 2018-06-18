@@ -80,7 +80,7 @@ public class FilesController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Filename must not be null");
         }
         file.setName(fileUpdate.getName());
-        file.setUpdatedBy(user.getUsername());
+        file.setUpdatedBy(user.getProvider().equals("supdrive") ? user.getUsername() : user.getSocialName());
         File updateFile = filesRepository.save(file);
         return ResponseEntity.ok().body(updateFile);
     }
