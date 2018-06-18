@@ -7,6 +7,7 @@ import com.supinfo.supdrive.model.Folder;
 import com.supinfo.supdrive.model.Offre;
 import com.supinfo.supdrive.model.User;
 import com.supinfo.supdrive.repository.FilesRepository;
+import com.supinfo.supdrive.repository.FolderRepository;
 import com.supinfo.supdrive.repository.OffreRepository;
 import com.supinfo.supdrive.repository.UserRepository;
 import com.supinfo.supdrive.security.CurrentUser;
@@ -36,6 +37,9 @@ public class FilesController {
 
     @Autowired
     FilesService filesService;
+
+    @Autowired
+    FolderRepository folderRepository;
 
 
     @Autowired
@@ -91,6 +95,25 @@ public class FilesController {
         if (newFolder.getUuid() == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You have to specify a folder UUID");
         }
+        File finalUpdateFile = filesService.moveFile(fileUuid, newFolder, user);
+        return ResponseEntity.ok().body(finalUpdateFile);
+    }
+
+    // Move a file
+    @PutMapping("/files/moveback/{uuid}")
+    public ResponseEntity<?> moveBackFile(@PathVariable(value = "uuid") UUID fileUuid,
+                           @CurrentUser UserPrincipal currentUser) {
+
+        User user = getUser(currentUser);
+        File actualFile = filesRepository.findByUuidAndUser(fileUuid, user);
+        Folder checkIfNotHome = actualFile.getFolder();
+
+        if (checkIfNotHome.getName().equals("home")){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("You can't move here.");
+        }
+
+        Folder newFolder = checkIfNotHome.getFolder();
+
         File finalUpdateFile = filesService.moveFile(fileUuid, newFolder, user);
         return ResponseEntity.ok().body(finalUpdateFile);
     }
