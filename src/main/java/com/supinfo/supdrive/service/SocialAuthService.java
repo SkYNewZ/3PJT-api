@@ -140,6 +140,8 @@ public class SocialAuthService {
         home.setUser(result);
         home.setDefaultDirectory(true);
         home.setMimeType("inode/directory");
+        home.setCreatedBy(result.getSocialName());
+        home.setUpdatedBy(result.getSocialName());
         folderRepository.save(home);
     }
 
