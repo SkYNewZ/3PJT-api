@@ -7,4 +7,4 @@ FROM java:8u111-jre-alpine
 WORKDIR /app
 COPY --from=BUILDER /app/target/supdrive.jar .
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "supdrive.jar"]
+ENTRYPOINT ["java", "-Xmx1024m", "-Xss512m", "-jar", "supdrive.jar"]]
